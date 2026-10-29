@@ -1,6 +1,6 @@
 {
   "version": "1.3.1",
-  "build": 31,
+  "build": 32,
   "license": "GPL-3.0-only",
   "files": [
     {
@@ -14,24 +14,74 @@
       "sha256": "e57386191c86184a4e68e8a24cfebbb374f52da849cb5e7b6d5d746137e6fa07"
     },
     {
-      "path": "Assets/MacPad-identity/MacPad.icon/Assets/app-artwork.png",
-      "bytes": 828318,
-      "sha256": "e232721db47f76d0dbe33adb71813395c0f7b19624c88ecf962d59bdea6f0532"
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/backplate.svg",
+      "bytes": 340,
+      "sha256": "679380eaf3fb6ea18fef070ba0b606143973688a0eb6a601dd8a19e07da732aa"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/ipad-frost.svg",
+      "bytes": 3713,
+      "sha256": "7a515822714c0437661d950eadb342be05eeca6601e9646f24a0200cb47af8b8"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/ipad-pane.svg",
+      "bytes": 1918,
+      "sha256": "ac72fd044403edd6b324cc0a9e12985ba22669207111bf50dda7dc562b224835"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/mini-front-material.svg",
+      "bytes": 956151,
+      "sha256": "61723ebcc98b67ae56004d62c2bcb2bd6e0acb75c3cac10eb1b333da81d7350e"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/mini-front.svg",
+      "bytes": 2115,
+      "sha256": "6ea3608367fee8052595e1410e7e04f8aa02947bf141564d25ca5fb02dd93acf"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/mini-indicator.svg",
+      "bytes": 335,
+      "sha256": "9a20d980786bf583a11522d505453890ad2e5ee1a78945086647cb392e606c63"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/mini-port-left.svg",
+      "bytes": 492,
+      "sha256": "9dc10dda512db11adcbeac111a63d1c01d8b8aba0ffc8c7d85b15578f6a4f3db"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/mini-port-right.svg",
+      "bytes": 492,
+      "sha256": "c485051cc1feac7bfe8e08d04557071c6ff0809742189b3696c94205eaab7b5a"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/mini-shadow.svg",
+      "bytes": 19794,
+      "sha256": "070f521d8e7cb7eb7051c61ca35af2dd14a7330694a397ce05c7b32fba038c0a"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/mini-top-material.svg",
+      "bytes": 955948,
+      "sha256": "58d16582904c2415a5da01a8d53b1468b0895b28601ce32b50387407426221a8"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/mini-top.svg",
+      "bytes": 1140,
+      "sha256": "7807ebd09f99439320ef6209ad0c26a84c4f55d2546d78c4a7693c1338b11238"
     },
     {
       "path": "Assets/MacPad-identity/MacPad.icon/icon.json",
-      "bytes": 624,
-      "sha256": "43e6a6d416356f198a2b01592912dd372056811ba1e741fb7e59aabbdf7f5f54"
+      "bytes": 3070,
+      "sha256": "2cb5c0b3ac1283c93889a03ebf3c0b87f3c788be8b872cddbef1f50b2b78f3dd"
     },
     {
       "path": "Assets/MacPad-identity/MenuBar.svg",
-      "bytes": 578,
-      "sha256": "d1771160de2a2c455c07a36eb3e7e6714062af3bab2423f3af9e84e0e76c7c4d"
+      "bytes": 935,
+      "sha256": "0c78c6f9d02d3375a0f868742ce9b84d6c406d90350296efbee5d358809122bb"
     },
     {
       "path": "BUILD",
       "bytes": 3,
-      "sha256": "32c2643e0dc65524c9f1f6f9f00937322fd68d59986bc381d9ff2285d23e353d"
+      "sha256": "2115cdb6bfcfb008eb2bab2bb79347cb064a48e4e7c4115ccbe4469c787bb6c4"
     },
     {
       "path": "CONTRIBUTING.md",
@@ -55,38 +105,38 @@
     },
     {
       "path": "README.md",
-      "bytes": 9239,
-      "sha256": "d8e05cfcc9bef694a071f3a6666b338a1bb096a35cc8276cfc2976276a79023a"
+      "bytes": 12713,
+      "sha256": "b04da0b6c75fef9e1ea2b57b5dcd4becb13d1ebeb1a5aa1837c452fe82e26760"
     },
     {
       "path": "README.zh-CN.md",
-      "bytes": 9073,
-      "sha256": "557f2f7d3331cf9cdda2bfd88a277586b36c469340f47288f5c574ed7b639655"
+      "bytes": 12134,
+      "sha256": "9ccabe8d5aa9023840f8c929ae3db3d2beb621f665d6a3120972e831ae12a1ec"
     },
     {
       "path": "Resources/MacPad.icns",
-      "bytes": 1354371,
-      "sha256": "e4b5fdbeb36018627094a8e6f18220a8a58978937b558a7dea9d7ba05eb0c362"
+      "bytes": 1549274,
+      "sha256": "467f71914043b3af2a20dca980e5b60e76fb1106bf061664f5bc98b770a78a88"
     },
     {
       "path": "Resources/MacPadIcon.png",
-      "bytes": 2866515,
-      "sha256": "f7c8fb14406fe83520402a9bdabed5d49ecd58a4f2576e691249c03ab23f7763"
+      "bytes": 1004043,
+      "sha256": "85a593a116702e713200b1562c2c33e5e08e7f5d3d59cc79223cbe698f13358e"
     },
     {
       "path": "Resources/MacPadMenuBar@1x.png",
-      "bytes": 850,
-      "sha256": "16420195d1f6e812d36b8a64ecd017c2d2c6f6d362af6a16100fdb3463f96ca3"
+      "bytes": 869,
+      "sha256": "5d0a1097edda2b7f88ae623801e1e0576b40d506c1b047635172340c1cb39ea9"
     },
     {
       "path": "Resources/MacPadMenuBar@2x.png",
-      "bytes": 1542,
-      "sha256": "52613e61a4605bfbbe8a4808692362a11bfd82fb6df545fc4dd1bd43c2a7b626"
+      "bytes": 1556,
+      "sha256": "a2f38b576c0b8c6b68168dfd33ce86199a774428e25a1a892c1a96ad2a39234d"
     },
     {
       "path": "Resources/MacPadMenuBar@3x.png",
-      "bytes": 2539,
-      "sha256": "f267e0f3334ba09f38cb27c0dde4401c2d9d13aa9f72bca68c5855e9271400ee"
+      "bytes": 2555,
+      "sha256": "bd9c1128eb6e7a6946cd15eded1b1caf6067a50c43ca1a42259f36f3b12f788a"
     },
     {
       "path": "Sources/Bridge.h",
@@ -105,8 +155,8 @@
     },
     {
       "path": "Sources/MacPad.swift",
-      "bytes": 72933,
-      "sha256": "8223490b967449ed8d4890596ab068b1e0d5a0f3ee6f055bc86019ed34d8d984"
+      "bytes": 73221,
+      "sha256": "b5a2e890f072ea50326c53a5ab35e1e7b390239e929697638849e148d15de109"
     },
     {
       "path": "Sources/ResolutionPolicy.swift",
@@ -130,8 +180,8 @@
     },
     {
       "path": "docs/GETTING_STARTED.md",
-      "bytes": 4935,
-      "sha256": "7d878503307dfa2d0ed4b7ba59d5da7a2f83cf76d6d3e3039a9f2fbc4bff9421"
+      "bytes": 5426,
+      "sha256": "398908295a9a6b0eed19a8bf62c4ca207dc593bc4e4b63a8ff17dd323b6a4e3a"
     },
     {
       "path": "docs/PRIVACY.md",
@@ -145,8 +195,8 @@
     },
     {
       "path": "docs/首次配置.md",
-      "bytes": 5160,
-      "sha256": "d4d075052f5d7626ad53c7de1eaa9aa859cce737783add0d009b93900d9616df"
+      "bytes": 5031,
+      "sha256": "d7263c8735317cb00591b4654439ab1d77c0ddaf9c480d1c22a6e5861971d556"
     },
     {
       "path": "scripts/build.sh",
@@ -156,7 +206,7 @@
     {
       "path": "scripts/test.sh",
       "bytes": 1437,
-      "sha256": "d27ab225cabfbac562f43cfb09694f1b9d239570171905af5e91d90afe4f82e3"
+      "sha256": "71f0dea1040b052946acf7a17b4fb4db600a9c257d90d99e3fc13a5eff627ef6"
     }
   ]
 }

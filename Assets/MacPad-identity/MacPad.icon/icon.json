@@ -1,24 +1,118 @@
 {
-  "fill": {
-    "solid": "srgb:0.03,0.35,0.92,1"
-  },
+  "fill": "none",
   "groups": [
     {
+      "blur-material": 0,
       "layers": [
         {
           "glass": false,
-          "image-name": "app-artwork.png",
-          "name": "MacPad"
+          "image-name": "mini-indicator.svg",
+          "name": "指示点 · 正面居中",
+          "opacity": 1
+        },
+        {
+          "glass": false,
+          "image-name": "mini-port-right.svg",
+          "name": "右接口 · 内凹",
+          "opacity": 1
+        },
+        {
+          "glass": false,
+          "image-name": "mini-port-left.svg",
+          "name": "左接口 · 内凹",
+          "opacity": 1
+        },
+        {
+          "glass": false,
+          "hidden": false,
+          "image-name": "mini-front-material.svg",
+          "name": "正面透明材质",
+          "opacity": 0.46
+        },
+        {
+          "glass": false,
+          "hidden": false,
+          "image-name": "mini-top-material.svg",
+          "name": "顶面透明材质",
+          "opacity": 0.46
+        },
+        {
+          "glass": false,
+          "hidden": false,
+          "image-name": "mini-front.svg",
+          "name": "正面 · 连续侧壁",
+          "opacity": 0.82
+        },
+        {
+          "glass": false,
+          "hidden": false,
+          "image-name": "mini-top.svg",
+          "name": "顶面 · 单一左上受光",
+          "opacity": 0.82
+        },
+        {
+          "glass": false,
+          "image-name": "mini-shadow.svg",
+          "name": "机身接触阴影",
+          "opacity": 1
         }
       ],
-      "name": "Approved MacPad artwork",
-      "position": {
-        "scale": 1.25,
-        "translation-in-points": [
-          0,
-          0
-        ]
+      "name": "01 · Mac mini · 前景实体",
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.12
       },
+      "specular": false,
+      "translucency": {
+        "enabled": false,
+        "value": 0
+      }
+    },
+    {
+      "name": "02 · iPad · 一体薄玻璃",
+      "layers": [
+        {
+          "name": "屏幕 · 柔和透色",
+          "image-name": "ipad-frost.svg",
+          "glass": false,
+          "opacity": 1
+        },
+        {
+          "image-name": "ipad-pane.svg",
+          "name": "完整玻璃面板 · 连续互通参考",
+          "glass": true,
+          "opacity": 0.68
+        }
+      ],
+      "lighting": "individual",
+      "specular": true,
+      "specular-highlight-placement": "inside",
+      "blur-material": 0.28,
+      "translucency": {
+        "enabled": true,
+        "value": 0.62
+      },
+      "refractivity": {
+        "enabled": true,
+        "strength": 0.14,
+        "depth": 0.22
+      },
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.09
+      }
+    },
+    {
+      "blur-material": 0,
+      "layers": [
+        {
+          "glass": false,
+          "image-name": "backplate.svg",
+          "name": "底板",
+          "opacity": 1
+        }
+      ],
+      "name": "03 · 底板 · 深蓝",
       "shadow": {
         "kind": "none",
         "opacity": 0
@@ -32,5 +126,9 @@
   ],
   "supported-platforms": {
     "squares": "shared"
-  }
+  },
+  "features": [
+    "refractivity",
+    "specular-location"
+  ]
 }

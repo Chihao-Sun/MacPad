@@ -1,52 +1,38 @@
-# Set up an iPad as your Mac display
+# Important operations
 
 **English** | [简体中文](首次配置.md)
 
-Keep a physical monitor attached for the first setup. MacPad's monitor-free use starts after macOS login. Enter the FileVault startup password on a keyboard connected to the Mac.
+> [!IMPORTANT]
+> MacPad starts **after macOS login**. It cannot show the FileVault startup screen or enter your password. For monitor-free restart, configure automatic connection and login launch, then rehearse startup with a physical monitor. Missing these steps can leave the iPad without a Mac picture after reboot.
 
-## Prepare and install
+### First setup
 
-1. Have an Apple Silicon Mac, a Sidecar-compatible iPad, a Mac keyboard and mouse, a physical monitor, and a USB-C data cable. A charge-only cable cannot carry wired Sidecar.
-2. Check [Apple's Sidecar requirements](https://support.apple.com/en-ie/102597), including the same Apple Account and two-factor authentication. For wireless use, enable Wi-Fi, Bluetooth, and Handoff and keep the devices nearby. The Mac should not share its Internet connection, and the iPad should not share cellular data. Apple suggests checking the same Wi-Fi network when troubleshooting wireless use.
-3. Download the DMG from [Releases](https://github.com/Chihao-Sun/MacPad/releases/latest), open it, and drag MacPad.app into Applications. Keep one installed copy and launch from that permanent location.
-4. This package is ad-hoc signed and not notarized. If macOS blocks it, review its source and checksum and follow [Apple's app-opening instructions](https://support.apple.com/en-au/102445) in Privacy & Security. Do not disable system-wide protections.
-5. Unlock the iPad and connect the data cable directly to the Mac. Accept the device trust or accessory prompt when requested. Finder sync and backups are unnecessary.
-6. Open MacPad from the menu bar, choose the iPad, and select Connect. Confirm the picture, keyboard, and mouse. The iPad and virtual display should share one mirrored desktop.
-7. Choose Display size. Native pixels come from the system, and presets follow the panel's aspect ratio. For a custom desktop, choose Custom and enter a width; Keep iPad aspect ratio calculates the height by default. You can turn it off to enter both dimensions. Pixel coverage and framebuffer limits are checked; settings are saved after the real mode and mirror relationship are confirmed.
+1. Keep a physical monitor attached and have your own keyboard and a mouse or trackpad connected to the **Mac mini**, not only to the iPad. Check the compatibility section below.
+2. Confirm [Apple's Sidecar requirements](https://support.apple.com/en-qa/102597): compatible devices, the same Apple Account, and two-factor authentication. For wireless, enable Wi-Fi, Bluetooth, and Handoff and keep the devices within 10 metres. Do not share the iPad's cellular or the Mac's Internet connection.
+3. Download the Apple Silicon DMG from [Releases](https://github.com/Chihao-Sun/MacPad/releases/latest). Open it, drag MacPad.app into Applications, and launch that permanent copy. Keep one installed copy; do not set login launch from the mounted DMG.
+4. The package is **ad-hoc signed and not Apple notarized**. If macOS blocks it, review the source and checksum, then follow [Apple's instructions](https://support.apple.com/en-au/102445) for that app in Privacy & Security. Do not disable system-wide protections.
+5. **The first connection may be wireless.** Unlock the iPad and select Automatic in MacPad. A prior USB connection is not required. Alternatively, connect a data cable and trust the Mac when prompted. The original Apple USB-C cable supplied with a USB-C iPhone or iPad is normally suitable; a charge-only cable is not. No Thunderbolt cable is needed. Finder sync and backups are unnecessary.
+6. Open MacPad from the menu bar, choose the iPad, and select Connect. Check the picture, keyboard, and mouse, then choose a Display size. Presets and Custom let you adjust text size and workspace.
+7. For automatic use after login, enable **connect when no physical monitor is present** and **launch after Mac login**. Approve MacPad under System Settings → General → Login Items if macOS requests it. Enable automatic wired/wireless switching if you want both methods to follow cable changes.
+8. Unplug only the physical monitor's video cable and check the iPad desktop. If you use both transports, test data-cable unplug/replug separately. Keep a recovery monitor nearby for the first restart test.
 
-MacPad does not require Remote Management, Remote Login, or Remote Apple Events. Leave FileVault and macOS automatic-login settings as they are.
+### Restart without a visible login screen
 
-## Enable daily automatic use
+**Rehearse this with a physical monitor first.** A keyboard that works after login is not proof that it works at the FileVault screen. Pair the wireless keyboard with the Mac mini, charge it, and confirm it can type at startup. A keyboard attached only to the iPad cannot enter the Mac's startup password through Sidecar. Keep a tested wired connection or USB receiver available if your keyboard needs one.
 
-In Automatic connection, choose the settings you want:
+1. Save work and shut down normally. Remove power only after shutdown. On arrival, connect Mac mini power and press its power button. Keep the iPad awake and unlocked, with the chosen wired or wireless conditions ready.
+2. Turn on the Mac-connected keyboard and wait for the startup stage established during rehearsal. Check Caps Lock and the input layout you tested. Use a harmless modifier such as Shift to wake the keyboard if needed.
+3. Follow the account/focus sequence you verified. If the default account's password field is already focused, type the password once and press Return. If rehearsal showed an account tile first, use the verified key sequence to open its password field before typing. Multiple accounts and OS updates can change this sequence; there is no universal blind-login key sequence.
+4. After the correct password is accepted, macOS enters the user session. MacPad then launches, retains a virtual desktop, and searches for the iPad. Allow the system time to finish login and discovery.
+5. If no picture appears, avoid repeatedly typing passwords blindly. Unlock the iPad and try its data cable; if necessary, reconnect the recovery monitor and inspect the actual login or connection state.
 
-| Option | Behaviour |
-| --- | --- |
-| Connect when no physical monitor is present | Try the iPad after login or after a monitor is unplugged, using a finite retry budget. |
-| Switch wired/wireless automatically | Prefer a connected data cable and try wireless when it is absent. |
-| Launch after Mac login | Run MacPad in the menu bar once the user has entered macOS. |
+Keep a login password and FileVault enabled. MacPad does not save or type passwords and does not require macOS automatic login. Automatic login is a separate OS setting; FileVault restricts its availability. Removing local login protection makes a lost or stolen Mac easier to access.
 
-A fresh installation does not enable its login item without your choice. If macOS asks for approval, check MacPad under System Settings → General → Login Items. Close the settings window to keep running in the background.
+### Daily use, recovery and updates
 
-## Verify each scenario
+- Close the settings window to keep MacPad running in the menu bar. Quitting removes its virtual display.
+- Unplug the data cable to try wireless; reinsert it to return to wired. Switching may briefly interrupt the picture. A temporary manual transport choice resets on the next cable change or login.
+- Disconnect pauses automatic connection. Select Connect to resume. After repeated failures, unlock the iPad and reconnect its cable or retry manually; ordinary refresh does not restart an unlimited retry loop.
+- Attach a spare monitor before updating or quitting when the iPad is your only display. Before uninstalling, disable login launch in MacPad, quit, and remove the app. Local diagnostics are described in [privacy notes](PRIVACY.md).
 
-1. Keep the unlocked iPad connected by cable and unplug only the monitor's video cable. Check the picture, keyboard, and mouse. Reconnect the monitor if recovery is needed.
-2. With wireless conditions ready, unplug the iPad data cable without selecting Disconnect. Check recovery, then reinsert it and check wired continuation. The picture can go black briefly. If wireless fails, unlock the iPad and reconnect its data cable.
-3. Save your work and shut down normally. Remove power only after shutdown. Reconnect power and start the Mac, keeping the iPad attached and unlocked. Enter the startup password on a Mac-connected keyboard, then check automatic connection after login. Keep a recovery monitor nearby for the first test.
-
-These checks cover different behaviours. One successful manual connection does not establish all three. Completely offline use still needs a separate test.
-
-## Switch, pause and recover
-
-- To move from wired to wireless, unplug the data cable while wireless conditions remain available.
-- To return to wired, reinsert the USB-C data cable.
-- A manual connection-method choice lasts for this session. Selecting Automatic, a cable-state change, or a new login restores the default preference.
-- Disconnect pauses automatic connection. Select Connect to resume.
-
-An unfinished native request keeps its token after a local timeout, so MacPad does not start a duplicate. After three attempts without a stable desktop, automatic calls pause until the device reappears, a cable changes, the Mac wakes, or you retry manually. A normal refresh or timer tick does not restart an unlimited retry loop. The system may still show an individual connection-failure dialog.
-
-## Update or uninstall
-
-Attach a spare monitor before updating or quitting when the iPad is your only display. Quitting removes the virtual display owned by MacPad.
-
-Before uninstalling, turn off login launch in MacPad, quit, and remove the app. Local diagnostics can be removed separately; see [privacy notes](PRIVACY.md).
+Rehearse cable changes and login separately; one successful manual connection does not prove monitor-free startup. Fully offline operation still needs a separate test.

@@ -763,20 +763,22 @@ enum MacPadArtwork {
     }()
     static let menuBar:NSImage = {
         // A vector AppKit drawing stays sharp at the menu bar's backing scale.
-        let size=NSSize(width:40,height:24)
-        let image=NSImage(size:size,flipped:true) {rect in
-            let purple=NSColor(srgbRed:112.0/255,green:99.0/255,blue:1,alpha:1)
-            let pill=NSBezierPath(roundedRect:rect.insetBy(dx:0.25,dy:0.25),xRadius:12,yRadius:12)
-            purple.setFill();pill.fill()
-            NSColor.white.withAlphaComponent(0.13).setStroke();pill.lineWidth=0.5;pill.stroke()
-            NSColor.white.setStroke()
-            let pad=NSBezierPath(roundedRect:NSRect(x:12,y:5.5,width:16,height:12),xRadius:1.95,yRadius:1.95)
-            NSColor.white.withAlphaComponent(0.18).setFill();pad.fill()
-            NSColor.white.setStroke();pad.lineWidth=1.25;pad.stroke()
-            let mini=NSBezierPath(roundedRect:NSRect(x:15.25,y:15.2,width:11.5,height:4.6),xRadius:1.32,yRadius:1.32)
-            purple.setFill();mini.fill();NSColor.white.setStroke();mini.lineWidth=1.25;mini.stroke()
-            NSColor.white.setFill()
-            for x in [18.0,19.6,25.0] {NSBezierPath(ovalIn:NSRect(x:x-0.5,y:17.5-0.5,width:1,height:1)).fill()}
+        let size=NSSize(width:34,height:23)
+        let image=NSImage(size:size,flipped:false) {_ in
+            guard let c=NSGraphicsContext.current?.cgContext else{return false}
+            let purple=NSColor(srgbRed:118.0/255,green:91.0/255,blue:1,alpha:1)
+            c.setFillColor(purple.cgColor)
+            c.addPath(CGPath(roundedRect:CGRect(origin:.zero,size:size),cornerWidth:11.5,cornerHeight:11.5,transform:nil));c.fillPath()
+            c.saveGState();c.translateBy(x:4.25,y:1.25)
+            c.setStrokeColor(NSColor.white.cgColor);c.setFillColor(NSColor.white.cgColor)
+            c.setLineWidth(1);c.setLineJoin(.round);c.setLineCap(.round)
+            let pad=CGPath(roundedRect:CGRect(x:5,y:7,width:12.7273,height:10),cornerWidth:1.7,cornerHeight:1.7,transform:nil)
+            c.saveGState();c.addRect(CGRect(x:-100,y:-100,width:250,height:250))
+            c.addPath(CGPath(roundedRect:CGRect(x:10.7,y:3.7,width:11.6,height:5.6),cornerWidth:1.95,cornerHeight:1.95,transform:nil))
+            c.clip(using:.evenOdd);c.addPath(pad);c.strokePath();c.restoreGState()
+            c.addPath(CGPath(roundedRect:CGRect(x:11.5,y:4.5,width:10,height:4),cornerWidth:1.15,cornerHeight:1.15,transform:nil));c.strokePath()
+            for x:CGFloat in [13.5,14.9,19.7] {c.fillEllipse(in:CGRect(x:x-0.5,y:6,width:1,height:1))}
+            c.restoreGState()
             return true
         }
         image.isTemplate=false;image.accessibilityDescription="MacPad"
@@ -788,7 +790,7 @@ enum MacPadArtwork {
     let popup:NSMenu
     private var pressed=false
     override var isFlipped:Bool {true}
-    private var pillFrame:NSRect {let h=min(24,bounds.height);return NSRect(x:0,y:(bounds.height-h)/2,width:40,height:h)}
+    private var pillFrame:NSRect {let h=min(23,bounds.height);return NSRect(x:0,y:(bounds.height-h)/2,width:34,height:h)}
     init(frame:NSRect,menu:NSMenu) {
         popup=menu;super.init(frame:frame)
         setAccessibilityElement(true);setAccessibilityRole(.menuBarItem)
@@ -1041,7 +1043,7 @@ struct MacPadView:View {
         menu.addItem(withTitle:"连接 iPad",action:#selector(connect),keyEquivalent:"").target=self
         menu.addItem(.separator())
         menu.addItem(withTitle:"退出 MacPad…",action:#selector(quit),keyEquivalent:"q").target=self
-        statusItem=NSStatusBar.system.statusItem(withLength:40)
+        statusItem=NSStatusBar.system.statusItem(withLength:34)
         if let button=statusItem.button {
             button.image=nil;button.title="";button.isBordered=false
             (button.cell as? NSButtonCell)?.highlightsBy=[]

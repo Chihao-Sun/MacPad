@@ -16,14 +16,14 @@ body='''
  let app=NSApplication.shared
  let parent=NSView(frame:NSRect(x:0,y:0,width:60,height:30))
  for h:CGFloat in [22,30] {
-  let pill=MenuBarPill(frame:NSRect(x:10,y:0,width:40,height:h),menu:NSMenu());parent.addSubview(pill)
-  assert(pill.hitTest(NSPoint(x:30,y:h/2)) === pill)
+  let pill=MenuBarPill(frame:NSRect(x:10,y:0,width:34,height:h),menu:NSMenu());parent.addSubview(pill)
+  assert(pill.hitTest(NSPoint(x:27,y:h/2)) === pill)
   assert(pill.hitTest(NSPoint(x:10.1,y:0.1)) == nil)
-  assert(pill.hitTest(NSPoint(x:49.9,y:h-0.1)) == nil)
+  assert(pill.hitTest(NSPoint(x:43.9,y:h-0.1)) == nil)
   assert(pill.hitTest(NSPoint(x:9,y:h/2)) == nil)
   pill.removeFromSuperview()
  }
- assert(MacPadArtwork.menuBar.size == NSSize(width:40,height:24))
+ assert(MacPadArtwork.menuBar.size == NSSize(width:34,height:23))
  print("PASS: native22/30pt container, capsule center/corners/margins and Retina vector size")
  withExtendedLifetime(app){}
 }}
