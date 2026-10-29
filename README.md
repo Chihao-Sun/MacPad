@@ -16,6 +16,8 @@ Apple Sidecar carries the picture. MacPad keeps a virtual display alive, manages
 
 Once you have configured and tested it, MacPad can run from the menu bar after login and connect automatically. Closing its settings window keeps the desktop running.
 
+---
+
 ## Five things you can skip
 
 **Set up your Mac once. Let your iPad reconnect after login.** Enable automatic connection and login launch, then leave the daily Sidecar steps to MacPad. It prefers a data cable when attached, tries wireless when unplugged, and attempts to recover interrupted connections.
@@ -33,6 +35,8 @@ Once you have configured and tested it, MacPad can run from the menu bar after l
 [Download free MacPad](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Copy an AI setup prompt](docs/GETTING_STARTED.md#start-with-ai-assistance-recommended)
 
 Compatible devices and Apple Account conditions still apply, and MacPad runs after macOS login. The input devices, first setup and startup steps are collected in Important operations below.
+
+---
 
 ## Important operations
 
@@ -76,6 +80,8 @@ We recommend keeping a login password and FileVault enabled. MacPad does not sav
 
 The [standalone setup guide](docs/GETTING_STARTED.md) contains these operations for use away from the README. Rehearse cable changes and login separately; one successful manual connection does not prove monitor-free startup. Fully offline operation still needs a separate test.
 
+---
+
 ## How display sizes work
 
 ![Native panel detection, HiDPI desktop and Sidecar scaling](docs/images/hidpi.en.svg)
@@ -96,6 +102,8 @@ On the tested 11-inch iPad Pro, the default desktop is 1344 × 938, rendered at 
 
 Use Display size or Custom to choose a desktop. Keep iPad aspect ratio is on by default. Custom dimensions must cover the panel pixels and fit within the framebuffer limits. Larger rendered desktops cost more graphics and encoding work; Sidecar controls the final frame rate and transmission quality. HiDPI does not imply a one-to-one panel mapping at every size.
 
+---
+
 ## Latency and switching
 
 In our current indoor setup, everyday wireless use has felt close to USB-C wired use. This is a subjective usage observation, not a measured latency comparison; conditions can vary with the wireless environment.
@@ -109,6 +117,8 @@ In our current indoor setup, everyday wireless use has felt close to USB-C wired
 
 Picture latency measures an input-to-visible-response delay. Recovery time measures how long it takes for the picture to return after unplugging. Switching can briefly interrupt the picture; there is no zero-interruption or fixed-time guarantee.
 
+---
+
 ## Compatibility and limits
 
 V1.3.2 provides an arm64 build with a macOS 14 minimum compilation target. Physical testing covers one M4 Mac mini on macOS 26.6.2 and one second-generation 11-inch iPad Pro. The iPadOS version has not been recorded. No Intel build is supplied, and other OS versions still need testing.
@@ -116,6 +126,8 @@ V1.3.2 provides an arm64 build with a macOS 14 minimum compilation target. Physi
 Different native dimensions and portrait/landscape ratios have policy tests. That is not physical acceptance of other iPad models. MacPad depends on internal system interfaces, which can change with macOS updates. Both devices must still qualify for Apple Sidecar.
 
 MacPad works after login. It does not display the FileVault startup unlock screen, save your password, or enable automatic macOS login. Fully offline operation, real sleep/wake, and forcing wireless while the cable stays attached have not been separately verified. It does not provide remote desktop across the public Internet or full macOS finger-touch input.
+
+---
 
 ## Build from source
 
@@ -129,6 +141,8 @@ zsh scripts/build.sh
 The app is generated in `.build/Release.noindex/<VERSION>/MacPad.app`. The build script increments internal BUILD and applies an ad-hoc signature. It does not automatically install, replace, or launch the app.
 
 Compilation and policy tests do not establish notarization, physical-device acceptance, or a successful cold boot. Keep a physical monitor attached for the first use of a self-built app.
+
+---
 
 ## License, privacy and contributions
 
