@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Resources/MacPadIcon.png" width="112" alt="MacPad 图标">
+  <img src="docs/images/macpad-dock-hero-v1.1.0.png" width="100%" alt="MacPad in a native macOS-style Dock">
 </p>
 
 # MacPad
