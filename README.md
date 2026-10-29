@@ -6,7 +6,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-[Download](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Setup guide](docs/GETTING_STARTED.md) · [Report a problem](https://github.com/Chihao-Sun/MacPad/issues) · [V1.3.1 status](docs/VERSION_STATUS.md)
+[Download](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Setup guide](docs/GETTING_STARTED.md) · [Report a problem](https://github.com/Chihao-Sun/MacPad/issues) · [V1.3.2 status](docs/VERSION_STATUS.md)
 
 ![MacPad: free forever, no iPad app, no display add-ons, wired and wireless switching](docs/images/macpad-benefits-v1.1.0.png)
 
@@ -111,7 +111,7 @@ Picture latency measures an input-to-visible-response delay. Recovery time measu
 
 ## Compatibility and limits
 
-V1.3.1 provides an arm64 build with a macOS 14 minimum compilation target. Physical testing covers one M4 Mac mini on macOS 26.6.2 and one second-generation 11-inch iPad Pro. The iPadOS version has not been recorded. No Intel build is supplied, and other OS versions still need testing.
+V1.3.2 provides an arm64 build with a macOS 14 minimum compilation target. Physical testing covers one M4 Mac mini on macOS 26.6.2 and one second-generation 11-inch iPad Pro. The iPadOS version has not been recorded. No Intel build is supplied, and other OS versions still need testing.
 
 Different native dimensions and portrait/landscape ratios have policy tests. That is not physical acceptance of other iPad models. MacPad depends on internal system interfaces, which can change with macOS updates. Both devices must still qualify for Apple Sidecar.
 

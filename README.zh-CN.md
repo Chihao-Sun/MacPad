@@ -6,7 +6,7 @@
 
 [English](README.md) | **简体中文**
 
-[下载安装包](https://github.com/Chihao-Sun/MacPad/releases/latest) · [首次配置](docs/首次配置.md) · [问题反馈](https://github.com/Chihao-Sun/MacPad/issues) · [V1.3.1 状态](docs/版本状态.md)
+[下载安装包](https://github.com/Chihao-Sun/MacPad/releases/latest) · [首次配置](docs/首次配置.md) · [问题反馈](https://github.com/Chihao-Sun/MacPad/issues) · [V1.3.2 状态](docs/版本状态.md)
 
 ![MacPad：永久免费、iPad 免装 App、免购显示配件、有线无线切换](docs/images/macpad-benefits-v1.1.0.png)
 
@@ -111,7 +111,7 @@ MacPad 读取系统随航显示器报告的原生像素，按屏幕比例生成�
 
 ## 兼容范围和使用边界
 
-当前源码版本为 V1.3.1，提供 arm64 构建，编译最低目标为 macOS 14。实际设备验证只覆盖 M4 Mac mini、macOS 26.6.2 和一台 11 英寸第二代 iPad Pro；iPadOS 具体版本尚未登记。未提供 Intel 构建，其他系统版本还需要验证。
+当前源码版本为 V1.3.2，提供 arm64 构建，编译最低目标为 macOS 14。实际设备验证只覆盖 M4 Mac mini、macOS 26.6.2 和一台 11 英寸第二代 iPad Pro；iPadOS 具体版本尚未登记。未提供 Intel 构建，其他系统版本还需要验证。
 
 不同尺寸和横竖比例已有策略测试，不能当作其他 iPad 型号已经完成真机验收。软件依赖系统内部接口，macOS 升级可能影响兼容性，且两端仍须满足 Apple 随航的设备与账户要求。
 

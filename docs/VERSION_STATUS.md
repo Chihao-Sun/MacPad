@@ -1,10 +1,13 @@
-# MacPad V1.3.1
+# MacPad V1.3.2
 
 **English** | [简体中文](版本状态.md)
 
 [Download V1.3.1](https://github.com/Chihao-Sun/MacPad/releases/tag/V1.3.1) · [Setup guide](GETTING_STARTED.md) · [Home](../README.md)
 
-Current application: V1.3.1, build 32. The application and installer are unchanged by the documentation update on 30 October 2026. The release source is commit [`7f7245a`](https://github.com/Chihao-Sun/MacPad/commit/7f7245ae1ce4c039bfe1e915d8127cbad00a0b6f).
+
+V1.3.2 / build 35 updates the app icon to v0.14.1 and menu bar to v0.5.6 (40×23 pt, #7163FF), with the approved Dock hero. Transport and HiDPI policies are unchanged.
+
+Previous application baseline: V1.3.1, build 32. The application and installer are unchanged by the documentation update on 30 October 2026. The release source is commit [`7f7245a`](https://github.com/Chihao-Sun/MacPad/commit/7f7245ae1ce4c039bfe1e915d8127cbad00a0b6f).
 
 ## What this version does
 
