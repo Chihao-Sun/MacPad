@@ -8,7 +8,7 @@
 
 [Download](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Setup guide](docs/GETTING_STARTED.md) · [Report a problem](https://github.com/Chihao-Sun/MacPad/issues)
 
-![MacPad: free forever, Mac-only setup, no iPad app, no extra display gear, automatic reconnection](docs/images/macpad-benefits-v1.png)
+![MacPad: free forever, no iPad app, no display add-ons, wired and wireless switching](docs/images/macpad-benefits-v1.1.0.png)
 
 Turn your iPad into a portable display for your Mac mini. Official MacPad releases will always be free and open source, with no subscription or activation code. Install it on the Mac; the iPad needs no extra app.
 

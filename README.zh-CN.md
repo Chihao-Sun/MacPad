@@ -8,7 +8,7 @@
 
 [下载安装包](https://github.com/Chihao-Sun/MacPad/releases/latest) · [首次配置](docs/首次配置.md) · [问题反馈](https://github.com/Chihao-Sun/MacPad/issues)
 
-![MacPad：永久免费、仅 Mac 配置、无需 iPad App、无需额外显示配件、自动接续](docs/images/macpad-benefits-v1.png)
+![MacPad：永久免费、iPad 免装 App、免购显示配件、有线无线切换](docs/images/macpad-benefits-v1.1.0.png)
 
 让 iPad 成为 Mac mini 外出办公的随身显示器。MacPad 官方版本永久免费开源，无订阅、无激活码，只需在 Mac 上安装和配置，iPad 不用另装软件。
 

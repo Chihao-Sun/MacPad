@@ -105,13 +105,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 13289,
-      "sha256": "faeb8eeb5217559e1d9177661834c93afa681830e52cb958625e66cafe8227c5"
+      "bytes": 13280,
+      "sha256": "899bd77a17ff2f847eb2ce9260291a0f7c9fb0e280a7d522996e64254e2d2dea"
     },
     {
       "path": "README.zh-CN.md",
-      "bytes": 12647,
-      "sha256": "bf90b86f567f8b9ac098428a78b3b184feb0eb38b7190287b6cb59e73350f948"
+      "bytes": 12634,
+      "sha256": "d8d726cc4a5f82b84b6795ec5869df218d51dc48014dfe5db456332ae330ee7d"
     },
     {
       "path": "Resources/MacPad.icns",
@@ -204,9 +204,9 @@
       "sha256": "51964b93153ea37fb142356ec12c03ce9054837a64160f02c97e4040673fa05f"
     },
     {
-      "path": "docs/images/macpad-benefits-v1.png",
-      "bytes": 1647239,
-      "sha256": "855b98f89eb3fd862db3ceb2315624f6a5eaaf757c2d94d79ed24c8637c5e645"
+      "path": "docs/images/macpad-benefits-v1.1.0.png",
+      "bytes": 1610061,
+      "sha256": "8b8665a4bbf36e2ff4c467fd7216e8366d064e1a60fa0c5a1764ddc824af379c"
     },
     {
       "path": "docs/隐私说明.md",
