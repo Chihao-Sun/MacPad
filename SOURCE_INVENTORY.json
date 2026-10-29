@@ -1,6 +1,6 @@
 {
   "version": "1.4.0",
-  "build": 53,
+  "build": 59,
   "license": "GPL-3.0-only",
   "files": [
     {
@@ -86,7 +86,7 @@
     {
       "path": "BUILD",
       "bytes": 3,
-      "sha256": "877a8799041017f1719854e4e295c6dca56cd1cf1b1914d1bfed9281f7fc2686"
+      "sha256": "be4ba010e48e7d5c7c60457e7f40538407a26f4ead94b392beff67a3a5546b8a"
     },
     {
       "path": "CONTRIBUTING.md",
@@ -160,8 +160,8 @@
     },
     {
       "path": "Sources/MacPad.swift",
-      "bytes": 84406,
-      "sha256": "9f071d214e866113f757baa7e6db63b1efc64c3b98a6e4c24692b2dc62c3a77c"
+      "bytes": 86115,
+      "sha256": "1590daa913e7a0badfb7135799c379b74c1100c544143a18b4b283d150d7f6af"
     },
     {
       "path": "Sources/ResolutionPolicy.swift",
@@ -200,8 +200,8 @@
     },
     {
       "path": "docs/VERSION_STATUS.md",
-      "bytes": 4439,
-      "sha256": "06f4a78e9900f4f5982c7c9a01a1fac1ba36c561c85df4e426ef14312ac91af2"
+      "bytes": 4448,
+      "sha256": "3fc85c194a880cc43cdb5cf4bddbf6c0a6d43ab3359433d5958a9c4d919c66eb"
     },
     {
       "path": "docs/images/display-size-menu.png",
@@ -230,8 +230,8 @@
     },
     {
       "path": "docs/版本状态.md",
-      "bytes": 3932,
-      "sha256": "1372db302bd46ba7b004d4fcd73f3c285573a1e9f9f37cc8603dc0404f9a8a7f"
+      "bytes": 3944,
+      "sha256": "ebc650c728dcac1e8a42826950b37a37f40b5af4968a7f46a78a0a5ad38d3889"
     },
     {
       "path": "docs/隐私说明.md",

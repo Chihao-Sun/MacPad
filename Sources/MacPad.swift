@@ -1025,7 +1025,8 @@ struct MacPadView:View {
                     VStack(alignment:.leading,spacing:3) {Text("MacPad").font(.system(size:12,weight:.semibold));Text("V\(version)").font(.system(size:11)).foregroundStyle(.secondary)}
                     Spacer()
                 }.padding(.horizontal,16).padding(.vertical,14)
-            }.navigationSplitViewColumnWidth(min:210,ideal:220,max:240)
+            }.frame(minWidth:210,idealWidth:220,maxWidth:240)
+                .navigationSplitViewColumnWidth(min:210,ideal:220,max:240).toolbar(removing:.sidebarToggle)
         } detail: {
             VStack(alignment:.leading,spacing:0) {
                 switch pane ?? .display {
@@ -1033,17 +1034,28 @@ struct MacPadView:View {
                 case .automation:automationSettings
                 case .activity:activitySettings
                 }
-                HStack(spacing:10) {
-                    Spacer()
-                    Button("刷新"){model.refresh(discover:true,hardware:true,forceDiscovery:true);model.tick()}
-                    if model.hasIPadScreen {Button("断开"){model.disconnect()}.disabled(model.busy)}
-                    else {Button(model.busy ? "连接中…" : "连接"){model.connect()}.disabled(model.busy || model.selection.isEmpty)}
-                }.buttonStyle(.bordered).controlSize(.regular).padding(.horizontal,20).padding(.vertical,14)
             }.frame(minWidth:520,maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading)
-                .navigationTitle(title)
-                .toolbar {
-                    ToolbarItem(placement:.navigation) {Text(title).font(.system(size:17,weight:.semibold))}
+                .contentMargins(.bottom,56,for:.scrollContent)
+                .overlay(alignment:.bottomTrailing) {
+                    HStack(spacing:10) {
+                        Button("刷新"){model.refresh(discover:true,hardware:true,forceDiscovery:true);model.tick()}
+                        if model.hasIPadScreen {Button("断开"){model.disconnect()}.disabled(model.busy)}
+                        else {Button(model.busy ? "连接中…" : "连接"){model.connect()}.disabled(model.busy || model.selection.isEmpty)}
+                    }.buttonStyle(.bordered).controlSize(.regular).padding(.horizontal,20).padding(.vertical,14)
                 }
+                // Retain the native unified toolbar host: removing the entire
+                // toolbar also removes macOS's floating rounded sidebar chrome.
+                // This layout anchor has no visible title, control or background.
+                .toolbar {
+                    if #available(macOS 26.0,*) {
+                        ToolbarItem(placement:.navigation) {Color.clear.frame(width:1,height:24).accessibilityHidden(true)}
+                            .sharedBackgroundVisibility(.hidden)
+                    } else {
+                        ToolbarItem(placement:.navigation) {Color.clear.frame(width:1,height:24).accessibilityHidden(true)}
+                    }
+                }
+                .toolbar(.visible,for:.windowToolbar)
+                .toolbar(removing:.sidebarToggle)
         }.navigationSplitViewStyle(.balanced).toolbar(removing:.sidebarToggle).frame(minWidth:760,minHeight:440).background(Color(nsColor:.windowBackgroundColor))
             .sheet(isPresented:$showCustomResolution) {customResolutionSheet}
     }
@@ -1215,8 +1227,12 @@ struct ShortcutSettings: View {
     var model:MacPadModel!
     var window:NSWindow!
     var statusItem:NSStatusItem!
+    private var toolbarObserver:NSObjectProtocol?
     func applicationDidFinishLaunching(_ notification:Notification) {
         model=MacPadModel()
+        toolbarObserver=NotificationCenter.default.addObserver(forName:NSToolbar.willAddItemNotification,object:nil,queue:.main) { [weak self] _ in
+            DispatchQueue.main.async {self?.removeSidebarToggle()}
+        }
         if CommandLine.arguments.contains("--enable-headless") {model.autoConnect=true;model.setLogin(true)}
         // During an upgrade the previous process can keep its display until the
         // new process owns another. Never terminate the previous process here.
@@ -1267,7 +1283,17 @@ struct ShortcutSettings: View {
         }
         }
         window.makeKeyAndOrderFront(nil);NSApp.activate(ignoringOtherApps:true);model.writeDiagnostics(force:true)
+        DispatchQueue.main.async { [weak self] in self?.removeSidebarToggle() }
     }
+    private func removeSidebarToggle() {
+        guard let toolbar=window?.toolbar else {return}
+        // Hosting-controller toolbar updates can recreate this standard item.
+        // Keep the sidebar fixed even on systems that ignore SwiftUI's removal preference.
+        for (index,item) in toolbar.items.enumerated().reversed() where item.itemIdentifier == .toggleSidebar {
+            toolbar.removeItem(at:index)
+        }
+    }
+    func windowDidBecomeKey(_ notification:Notification) {removeSidebarToggle()}
     func windowWillClose(_ notification:Notification) {
         // Discard the hosting tree while keeping the display owner and menu alive.
         window?.contentViewController=nil;window=nil
