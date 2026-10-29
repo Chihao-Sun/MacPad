@@ -116,12 +116,13 @@ Finish with separate lists of configured settings, physically confirmed results 
 4. After the correct password is accepted, macOS enters the user session. MacPad then launches, retains a virtual desktop, and searches for the iPad. Allow the system time to finish login and discovery.
 5. If no picture appears, avoid repeatedly typing passwords blindly. Unlock the iPad and try its data cable; if necessary, reconnect the recovery monitor and inspect the actual login or connection state.
 
-Keep a login password and FileVault enabled. MacPad does not save or type passwords and does not require macOS automatic login. Automatic login is a separate OS setting; FileVault restricts its availability. Removing local login protection makes a lost or stolen Mac easier to access.
+We recommend keeping a login password and FileVault enabled. MacPad does not save or type passwords and does not require macOS automatic login. Automatic login is a separate OS setting; FileVault restricts its availability. Removing local login protection makes a lost or stolen Mac easier to access.
 
 ### Daily use, recovery and updates
 
 - Close the settings window to keep MacPad running in the menu bar. Quitting removes its virtual display.
 - Unplug the data cable to try wireless; reinsert it to return to wired. Switching may briefly interrupt the picture. A temporary manual transport choice resets on the next cable change or login.
+- If a cable is attached but Automatic still shows wireless, check that macOS has recognized the USB iPad. Charging alone does not establish a data connection. Unlock the iPad, reseat the cable and handle any accessory or trust prompt; try a cable known to carry data if it remains unrecognized. MacPad prefers wired once the USB connection is detected.
 - Disconnect pauses automatic connection. Select Connect to resume. After repeated failures, unlock the iPad and reconnect its cable or retry manually; ordinary refresh does not restart an unlimited retry loop.
 - Attach a spare monitor before updating or quitting when the iPad is your only display. Before uninstalling, disable login launch in MacPad, quit, and remove the app. Local diagnostics are described in [privacy notes](PRIVACY.md).
 

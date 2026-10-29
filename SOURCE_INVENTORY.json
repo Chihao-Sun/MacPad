@@ -105,13 +105,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 13280,
-      "sha256": "899bd77a17ff2f847eb2ce9260291a0f7c9fb0e280a7d522996e64254e2d2dea"
+      "bytes": 13793,
+      "sha256": "b64e8bd1bb3bb7ef159deaa248c63e96f62a3e54283a73c62626c3eac72a8047"
     },
     {
       "path": "README.zh-CN.md",
-      "bytes": 12634,
-      "sha256": "d8d726cc4a5f82b84b6795ec5869df218d51dc48014dfe5db456332ae330ee7d"
+      "bytes": 13083,
+      "sha256": "714513f2d98f9bc69b642964b7b3916cd6df28f1912569f0c899f1d846390c34"
     },
     {
       "path": "Resources/MacPad.icns",
@@ -180,13 +180,18 @@
     },
     {
       "path": "docs/GETTING_STARTED.md",
-      "bytes": 15612,
-      "sha256": "85503fa1d25c991f6ab2fe651ded16102d7fb28b5fa8a86770f70870d3d7e6d2"
+      "bytes": 15982,
+      "sha256": "278087fcbb8a2973c9c439f1b01fc66533d89ecca7ba263cc5d0d14d0125cf88"
     },
     {
       "path": "docs/PRIVACY.md",
       "bytes": 1646,
       "sha256": "8483d16ba8c703e6485b262d8ed85be85329f8c816e410b9d7682919b4033f69"
+    },
+    {
+      "path": "docs/VERSION_STATUS.md",
+      "bytes": 3143,
+      "sha256": "67e468e87e2a06221092ff1accdffbf4b79bd9f3f3a68fc1bf9a4441aff70123"
     },
     {
       "path": "docs/images/display-size-menu.png",
@@ -209,14 +214,19 @@
       "sha256": "8b8665a4bbf36e2ff4c467fd7216e8366d064e1a60fa0c5a1764ddc824af379c"
     },
     {
+      "path": "docs/版本状态.md",
+      "bytes": 2840,
+      "sha256": "57ebf832ef3efdd57c7c092b65e19aab3ce1446b396ed67341fcb1e210d0b29a"
+    },
+    {
       "path": "docs/隐私说明.md",
       "bytes": 1548,
       "sha256": "f365aa6557c11ed28201fd158dddd2455dcd2c8b2c948aacb7755b552b354370"
     },
     {
       "path": "docs/首次配置.md",
-      "bytes": 15129,
-      "sha256": "dcd7e9e4c94ca869d7ab5c0194b0e547b709826901bced5dc6adbab3cb2f9e48"
+      "bytes": 15456,
+      "sha256": "3a2805876c1eb042ca91a758a44e1473445c204e795fdfcb0ccc163e7ca9cbe2"
     },
     {
       "path": "scripts/build.sh",
