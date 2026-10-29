@@ -55,13 +55,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 8996,
-      "sha256": "516e9f789deafc3358c02ba7f6742e25f88d6dc263c8daaeafe6859cecdc775f"
+      "bytes": 9005,
+      "sha256": "cb96f284f9282d4a6ab3c2108c5f013aca10688002ce5f08b72b1c0a4e249273"
     },
     {
       "path": "README.zh-CN.md",
-      "bytes": 8779,
-      "sha256": "ef8dc4b7a8af7c65dd1e87be6cf0d82a8be90e0d2de48063deb3d2126f78e233"
+      "bytes": 8794,
+      "sha256": "ff1d5c822a4099af764f03453a1259f312c880c02f330cbd78c9012ab815bfb9"
     },
     {
       "path": "Resources/MacPad.icns",

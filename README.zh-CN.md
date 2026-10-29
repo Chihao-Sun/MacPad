@@ -8,7 +8,7 @@
 
 [下载安装包](https://github.com/Chihao-Sun/MacPad/releases/latest) · [首次配置](docs/首次配置.md) · [问题反馈](https://github.com/Chihao-Sun/MacPad/issues)
 
-把 iPad 当作 Mac mini 的日常屏幕。MacPad 免费开源，只需在 Mac 上安装和配置，iPad 不用另装软件。
+让 iPad 成为 Mac mini 外出办公的随身显示器。MacPad 免费开源，只需在 Mac 上安装和配置，iPad 不用另装软件。
 
 它使用 Apple 原生随航传输画面，再用虚拟屏幕维持桌面、生成适合 iPad 的高清分辨率。两端满足随航要求时，无需购买采集卡或显示器诱骗器；有线使用能传数据的 USB-C 线，也可以无线连接。
 

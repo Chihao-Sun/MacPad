@@ -8,7 +8,7 @@
 
 [Download](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Setup guide](docs/GETTING_STARTED.md) · [Report a problem](https://github.com/Chihao-Sun/MacPad/issues)
 
-Use an iPad as your Mac mini's everyday display. MacPad is free and open source. Install it on the Mac; the iPad needs no extra app.
+Turn your iPad into a portable display for your Mac mini. MacPad is free and open source. Install it on the Mac; the iPad needs no extra app.
 
 Apple Sidecar carries the picture. MacPad keeps a virtual display alive, manages a mirrored desktop, and offers HiDPI sizes suited to the iPad's screen. With compatible devices and accounts, you can use an existing USB-C data cable or connect wirelessly, without buying a capture card or display dummy.
 
