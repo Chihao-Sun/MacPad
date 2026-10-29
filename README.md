@@ -16,6 +16,8 @@ Once you have configured and tested it, MacPad can run from the menu bar after l
 
 ## What MacPad makes easier
 
+- Make use of each iPad’s native pixels and aspect ratio: generate HiDPI sizes that cover the panel, with a choice of text size, workspace, or custom dimensions. Frame rate, HDR, and compression remain controlled by Apple Sidecar.
+
 - Keep using the iPad after unplugging the physical monitor. The virtual display retains the Mac desktop after login.
 - Keep the iPad and virtual display on one mirrored desktop, so the pointer and windows cannot disappear into an invisible extension between them.
 - Start from the menu bar after login and connect automatically when no physical monitor is attached.
