@@ -2,14 +2,16 @@
 
 **English** | [简体中文](版本状态.md)
 
-[Download V1.3.2](https://github.com/Chihao-Sun/MacPad/releases/tag/V1.3.2) · [Setup guide](GETTING_STARTED.md) · [Home](../README.md)
+[Download V1.4.0](https://github.com/Chihao-Sun/MacPad/releases/tag/V1.4.0) · [Setup guide](GETTING_STARTED.md) · [Home](../README.md)
 
 
-V1.4.0 / build 59 adds a global connect shortcut (default ⌃⌥⌘L), editable in Automatic connection, with inline registration/system-conflict feedback. Manual disconnect now remains paused across USB changes, system wake and MacPad restart. Diagnostics also provide independent per-process status during upgrades. Sidebar row/icon spacing follows the supplied macOS System Settings reference.
+V1.4.0 / build 61 adds a global connect shortcut (default ⌃⌥⌘L), editable in Automatic connection, with inline registration/system-conflict feedback. Manual disconnect now remains paused across USB changes, system wake and MacPad restart. Diagnostics also provide independent per-process status during upgrades. Sidebar rows have a fixed 40-point height and an 8-point icon-to-label gap.
 
-The current source is V1.4.0; the downloadable release remains V1.3.2. Policy, shortcut-registration and build checks passed. Live shortcut reconnect and custom recording were verified on the development Mac. Physical sleep/wake, cable reinsertion while paused and new-device installation are not claimed as completed tests.
+The source and downloadable release are V1.4.0 / build 61. Policy, shortcut-registration and build checks passed. Live shortcut reconnect and custom recording were verified on the development Mac. Physical sleep/wake, cable reinsertion while paused and new-device installation are not claimed as completed tests.
 
 The settings window uses native split navigation with a rounded floating sidebar. The sidebar remains visible, with no collapse button; Refresh and Connect/Disconnect sit at the lower right. Click the shortcut value to edit it. Restore Default is visible below the row. Escape, clicking elsewhere, leaving the window or five seconds without input restores the previous shortcut.
+
+The two settings pages fit without vertical scrolling. Content starts higher, while the native rounded sidebar and lower-right actions remain. Native connection requests are single-flight; an existing MacPad modal or panel defers new requests. Background checks continue, and repeated failures have a finite retry budget. MacPad cannot guarantee suppression of macOS-owned Sidecar dialogs.
 
 ## Previous baseline
 

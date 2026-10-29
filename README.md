@@ -6,7 +6,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-[Download](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Setup guide](docs/GETTING_STARTED.md) · [Report a problem](https://github.com/Chihao-Sun/MacPad/issues) · [V1.4.0 source status](docs/VERSION_STATUS.md)
+[Download](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Setup guide](docs/GETTING_STARTED.md) · [Report a problem](https://github.com/Chihao-Sun/MacPad/issues) · [V1.4.0 release notes](docs/VERSION_STATUS.md)
 
 ![MacPad: free forever, no iPad app, no display add-ons, wired and wireless switching](docs/images/macpad-benefits-v1.1.0.png)
 
@@ -77,7 +77,7 @@ We recommend keeping a login password and FileVault enabled. MacPad does not sav
 - If a cable is attached but Automatic still shows wireless, check that macOS has recognized the USB iPad. Charging alone does not establish a data connection. Unlock the iPad, reseat the cable and handle any accessory or trust prompt; try a cable known to carry data if it remains unrecognized. MacPad prefers wired once the USB connection is detected.
 - At login, an attached physical display suppresses automatic iPad discovery and connection. Removing that display restores the configured automatic behavior; an explicit Connect or shortcut remains available.
 - Click Disconnect to leave the Mac running without the iPad display. The pause survives USB changes, system wake and MacPad restart. Click Connect or press the global connect shortcut to resume.
-- In the V1.4.0 source, the default global connect shortcut is **Control + Option + Command + L** (⌃⌥⌘L). Customize it under Automatic connection. Conflicts reported by macOS appear beside the setting and retain the previous shortcut. MacPad must be running in a logged-in session; third-party app-specific key bindings are not fully detectable.
+- In V1.4.0, the default global connect shortcut is **Control + Option + Command + L** (⌃⌥⌘L). Customize it under Automatic connection. Conflicts reported by macOS appear beside the setting and retain the previous shortcut. MacPad must be running in a logged-in session; third-party app-specific key bindings are not fully detectable.
 - Connection recovery: After repeated failures, unlock the iPad and reconnect its cable or retry manually; ordinary refresh does not restart an unlimited retry loop.
 - Attach a spare monitor before updating or quitting when the iPad is your only display. Before uninstalling, disable login launch in MacPad, quit, and remove the app. Local diagnostics are described in [privacy notes](docs/PRIVACY.md).
 
@@ -124,7 +124,7 @@ Picture latency measures an input-to-visible-response delay. Recovery time measu
 
 ## Compatibility and limits
 
-The latest downloadable release is V1.3.2; these new shortcut features are in the V1.4.0 source. MacPad provides an arm64 build with a macOS 14 minimum compilation target. Physical testing covers one M4 Mac mini on macOS 26.6.2 and one second-generation 11-inch iPad Pro. The iPadOS version has not been recorded. No Intel build is supplied, and other OS versions still need testing.
+The latest release is V1.4.0, including the new shortcut and persistent manual pause. MacPad provides an arm64 build with a macOS 14 minimum compilation target. Physical testing covers one M4 Mac mini on macOS 26.6.2 and one second-generation 11-inch iPad Pro. The iPadOS version has not been recorded. No Intel build is supplied, and other OS versions still need testing.
 
 Different native dimensions and portrait/landscape ratios have policy tests. That is not physical acceptance of other iPad models. MacPad depends on internal system interfaces, which can change with macOS updates. Both devices must still qualify for Apple Sidecar.
 

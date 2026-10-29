@@ -6,7 +6,7 @@
 
 [English](README.md) | **简体中文**
 
-[下载安装包](https://github.com/Chihao-Sun/MacPad/releases/latest) · [首次配置](docs/首次配置.md) · [问题反馈](https://github.com/Chihao-Sun/MacPad/issues) · [V1.4.0 源码状态](docs/版本状态.md)
+[下载安装包](https://github.com/Chihao-Sun/MacPad/releases/latest) · [首次配置](docs/首次配置.md) · [问题反馈](https://github.com/Chihao-Sun/MacPad/issues) · [V1.4.0 版本说明](docs/版本状态.md)
 
 ![MacPad：永久免费、iPad 免装 App、免购显示配件、有线无线切换](docs/images/macpad-benefits-v1.1.0.png)
 
@@ -77,7 +77,7 @@
 - 已插线但仍显示“自动（无线）”时，先检查系统是否识别到 USB iPad。能够充电不代表数据已连通；保持 iPad 解锁、重新插紧，并处理配件或信任提示。仍未识别时，换一根已确认能传数据的线。系统识别到 USB 连接后，MacPad 才会优先切到有线。
 - 登录后已有实体显示器时，不自动搜索或连接 iPad；拔掉外接屏后才按设置恢复自动连接。主动点击“连接”或按快捷键仍可连接。
 - 主动点击“断开”后，Mac mini 与虚拟桌面继续运行，iPad 保持断开；USB 变化、系统唤醒和 MacPad 重启均保留暂停状态。点击“连接”或按连接快捷键恢复。
-- V1.4.0 源码默认使用全局快捷键 **Control + Option + Command + L**（⌃⌥⌘L），可在“自动连接”中自定义。macOS 检测到的冲突在设置项旁提示，并保留原快捷键。需已登录 Mac 且 MacPad 正在运行；第三方应用自身的快捷键无法全部检测。
+- V1.4.0 默认使用全局快捷键 **Control + Option + Command + L**（⌃⌥⌘L），可在“自动连接”中自定义。macOS 检测到的冲突在设置项旁提示，并保留原快捷键。需已登录 Mac 且 MacPad 正在运行；第三方应用自身的快捷键无法全部检测。
 - 连接恢复：连续失败后可解锁 iPad、重新插线或手动重试；普通刷新不会启动无限重试。
 - 仅用 iPad 显示时，更新或退出前先接备用显示器。卸载前关闭应用内登录启动，再退出并移除 App；本地诊断见 [隐私说明](docs/隐私说明.md)。
 
@@ -124,7 +124,7 @@ MacPad 读取系统随航显示器报告的原生像素，按屏幕比例生成�
 
 ## 兼容范围和使用边界
 
-当前源码版本为 V1.4.0；最新可下载安装包仍为 V1.3.2，尚不含本次快捷键功能，提供 arm64 构建，编译最低目标为 macOS 14。实际设备验证只覆盖 M4 Mac mini、macOS 26.6.2 和一台 11 英寸第二代 iPad Pro；iPadOS 具体版本尚未登记。未提供 Intel 构建，其他系统版本还需要验证。
+当前源码和下载安装包均为 V1.4.0，包含快捷键与手动断开暂停功能，提供 arm64 构建，编译最低目标为 macOS 14。实际设备验证只覆盖 M4 Mac mini、macOS 26.6.2 和一台 11 英寸第二代 iPad Pro；iPadOS 具体版本尚未登记。未提供 Intel 构建，其他系统版本还需要验证。
 
 不同尺寸和横竖比例已有策略测试，不能当作其他 iPad 型号已经完成真机验收。软件依赖系统内部接口，macOS 升级可能影响兼容性，且两端仍须满足 Apple 随航的设备与账户要求。
 

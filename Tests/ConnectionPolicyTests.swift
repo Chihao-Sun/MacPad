@@ -5,6 +5,11 @@ import Foundation
         func decide(_ device:Bool=true,_ external:Bool=false,_ paused:Bool=false,_ busy:Bool=false,_ retry:TimeInterval=0)->AutomaticConnectionAction {
             ConnectionPolicy.action(enabled:true,otherDisplay:external,connected:false,busy:busy,paused:paused,settling:false,knownDevice:device,retryIn:retry)
         }
+        assert(ConnectionPolicy.requestAllowed(pending:false,dialogVisible:false))
+        assert(!ConnectionPolicy.requestAllowed(pending:true,dialogVisible:false))
+        assert(!ConnectionPolicy.requestAllowed(pending:false,dialogVisible:true))
+        assert(!ConnectionPolicy.requestAllowed(pending:true,dialogVisible:true))
+        print("PASS: in-flight request or existing dialog prevents another native request")
         assert(!ConnectionPolicy.shouldDiscover(otherDisplay:true,paused:false,manual:false))
         assert(!ConnectionPolicy.shouldDiscover(otherDisplay:false,paused:true,manual:false))
         assert(ConnectionPolicy.shouldDiscover(otherDisplay:false,paused:false,manual:false))

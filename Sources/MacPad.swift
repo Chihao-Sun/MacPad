@@ -802,6 +802,11 @@ struct ShortcutRecorder: NSViewRepresentable {
         guard requestGate.pending==nil else {
             status="正在等待系统连接结束";detail="上一次请求尚未返回，暂不重复连接。";return
         }
+        let dialogVisible = NSApp.modalWindow != nil || NSApp.windows.contains { $0.isVisible && ($0 is NSPanel || $0.attachedSheet != nil) }
+        guard ConnectionPolicy.requestAllowed(pending:requestGate.pending != nil,dialogVisible:dialogVisible) else {
+            status="等待当前提示处理";detail="不会重复发起连接请求，稍后继续检查。"
+            scheduleTick(after:5);return
+        }
         if manual {requestGate.resume()}
         guard requestGate.canStart else {return}
         if transportChoice == .wired && usbCount==0 {transportChoice = .automatic;manualChoiceCablePresent=nil}
@@ -1016,10 +1021,10 @@ struct MacPadView:View {
                     }.padding(.vertical,5).listRowInsets(EdgeInsets(top:4,leading:0,bottom:4,trailing:6)).tag(MacPadPane.display)
                     }
                     Section {
-                    HStack(spacing:5) {sidebarIcon("cable.connector",color:.teal);Text("自动连接")}.frame(height:20).listRowInsets(EdgeInsets(top:6,leading:0,bottom:6,trailing:6)).tag(MacPadPane.automation)
-                    HStack(spacing:5) {sidebarIcon("list.bullet.rectangle",color:.gray);Text("连接记录")}.frame(height:20).listRowInsets(EdgeInsets(top:6,leading:0,bottom:6,trailing:6)).tag(MacPadPane.activity)
+                    HStack(spacing:8) {sidebarIcon("cable.connector",color:.teal);Text("自动连接")}.frame(height:20).listRowInsets(EdgeInsets(top:10,leading:0,bottom:10,trailing:6)).tag(MacPadPane.automation)
+                    HStack(spacing:8) {sidebarIcon("list.bullet.rectangle",color:.gray);Text("连接记录")}.frame(height:20).listRowInsets(EdgeInsets(top:10,leading:0,bottom:10,trailing:6)).tag(MacPadPane.activity)
                     } header: {Color.clear.frame(height:10).accessibilityHidden(true)}
-                }.listStyle(.sidebar).environment(\.defaultMinListRowHeight,32).scrollContentBackground(.hidden).font(.system(size:13)).contentMargins(.horizontal,0,for:.scrollContent)
+                }.listStyle(.sidebar).environment(\.defaultMinListRowHeight,40).scrollContentBackground(.hidden).font(.system(size:13)).contentMargins(.horizontal,0,for:.scrollContent)
                 HStack(spacing:10) {
                     MacPadMark().scaleEffect(0.5).frame(width:28,height:28)
                     VStack(alignment:.leading,spacing:3) {Text("MacPad").font(.system(size:12,weight:.semibold));Text("V\(version)").font(.system(size:11)).foregroundStyle(.secondary)}
@@ -1056,7 +1061,7 @@ struct MacPadView:View {
                 }
                 .toolbar(.visible,for:.windowToolbar)
                 .toolbar(removing:.sidebarToggle)
-        }.navigationSplitViewStyle(.balanced).toolbar(removing:.sidebarToggle).frame(minWidth:760,minHeight:440).background(Color(nsColor:.windowBackgroundColor))
+        }.navigationSplitViewStyle(.balanced).toolbar(removing:.sidebarToggle).frame(minWidth:760,minHeight:540).background(Color(nsColor:.windowBackgroundColor))
             .sheet(isPresented:$showCustomResolution) {customResolutionSheet}
     }
     private func sidebarIcon(_ name:String,color:Color)->some View {
@@ -1119,7 +1124,7 @@ struct MacPadView:View {
                     if !model.resolutionMessage.isEmpty {Text(model.resolutionMessage).font(.system(size:12)).foregroundStyle(.secondary)}
                 }
             } footer: {Text(model.resolutionFootnote)}
-        }.formStyle(.grouped).font(.system(size:13))
+        }.formStyle(.grouped).contentMargins(.top,0,for:.scrollContent).scrollDisabled(true).scrollIndicators(.hidden).font(.system(size:13))
     }
     private var customResolutionSheet:some View {
         VStack(alignment:.leading,spacing:16) {
@@ -1180,7 +1185,7 @@ struct MacPadView:View {
             Section {
                 Toggle("登录 Mac 后启动",isOn:Binding(get:{model.loginEnabled},set:model.setLogin))
             } footer: {Text("开机密码仍由你输入。登录后，MacPad 在菜单栏运行。")}
-        }.formStyle(.grouped).toggleStyle(.switch).font(.system(size:13))
+        }.formStyle(.grouped).contentMargins(.top,0,for:.scrollContent).scrollDisabled(true).scrollIndicators(.hidden).toggleStyle(.switch).font(.system(size:13))
     }
     private var activitySettings:some View {
         Form {
@@ -1201,7 +1206,7 @@ struct MacPadView:View {
                     }
                 } footer: {Text("只记录本次运行的连接与显示变化。")}
             }
-        }.formStyle(.grouped).font(.system(size:13))
+        }.formStyle(.grouped).contentMargins(.top,0,for:.scrollContent).font(.system(size:13))
     }
 }
 
@@ -1271,11 +1276,11 @@ struct ShortcutSettings: View {
     @objc func show(){
         if window==nil {
         let visible=NSScreen.main?.visibleFrame ?? NSRect(x:0,y:0,width:1194,height:834)
-        let size=NSSize(width:max(760,min(860,visible.width-48)),height:max(440,min(600,visible.height-56)))
+        let size=NSSize(width:max(760,min(860,visible.width-48)),height:max(540,min(600,visible.height-56)))
         window=NSWindow(contentRect:NSRect(origin:.zero,size:size),styleMask:[.titled,.closable,.miniaturizable,.resizable,.fullSizeContentView],backing:.buffered,defer:false)
-        window.contentMinSize=NSSize(width:760,height:440)
+        window.contentMinSize=NSSize(width:760,height:540)
         window.titlebarAppearsTransparent=true;window.titleVisibility = .hidden;window.toolbarStyle = .unified;window.titlebarSeparatorStyle = .none;window.delegate=self
-        window.identifier=NSUserInterfaceItemIdentifier("MacPad.control");window.title="MacPad";window.contentViewController=NSHostingController(rootView:MacPadView(model:model));window.center();window.isReleasedWhenClosed=false
+        window.identifier=NSUserInterfaceItemIdentifier("MacPad.control");window.title="MacPad";window.contentViewController=NSHostingController(rootView:MacPadView(model:model));window.setContentSize(size);window.center();window.isReleasedWhenClosed=false
         // Prefer the visible Sidecar screen over an offscreen virtual desktop.
         if let screen=NSScreen.screens.first(where:{$0.localizedName.localizedCaseInsensitiveContains("sidecar")}) {
             let frame=screen.visibleFrame

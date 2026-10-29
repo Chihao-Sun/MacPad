@@ -32,6 +32,10 @@ enum AutomaticConnectionAction:Equatable {
 }
 
 enum ConnectionPolicy {
+    static func requestAllowed(pending:Bool,dialogVisible:Bool)->Bool {
+        !pending && !dialogVisible
+    }
+
     static func shouldDiscover(otherDisplay:Bool,paused:Bool,manual:Bool)->Bool {
         manual || (!otherDisplay && !paused)
     }
