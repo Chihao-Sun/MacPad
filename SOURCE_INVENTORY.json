@@ -105,13 +105,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 12713,
-      "sha256": "b04da0b6c75fef9e1ea2b57b5dcd4becb13d1ebeb1a5aa1837c452fe82e26760"
+      "bytes": 13289,
+      "sha256": "faeb8eeb5217559e1d9177661834c93afa681830e52cb958625e66cafe8227c5"
     },
     {
       "path": "README.zh-CN.md",
-      "bytes": 12134,
-      "sha256": "9ccabe8d5aa9023840f8c929ae3db3d2beb621f665d6a3120972e831ae12a1ec"
+      "bytes": 12647,
+      "sha256": "bf90b86f567f8b9ac098428a78b3b184feb0eb38b7190287b6cb59e73350f948"
     },
     {
       "path": "Resources/MacPad.icns",
@@ -180,13 +180,33 @@
     },
     {
       "path": "docs/GETTING_STARTED.md",
-      "bytes": 5426,
-      "sha256": "398908295a9a6b0eed19a8bf62c4ca207dc593bc4e4b63a8ff17dd323b6a4e3a"
+      "bytes": 15612,
+      "sha256": "85503fa1d25c991f6ab2fe651ded16102d7fb28b5fa8a86770f70870d3d7e6d2"
     },
     {
       "path": "docs/PRIVACY.md",
       "bytes": 1646,
       "sha256": "8483d16ba8c703e6485b262d8ed85be85329f8c816e410b9d7682919b4033f69"
+    },
+    {
+      "path": "docs/images/display-size-menu.png",
+      "bytes": 143877,
+      "sha256": "717dc5127d2493c4dde80e66a0e55a341fbb169a5caa7c3d5b22c61280c9bb36"
+    },
+    {
+      "path": "docs/images/hidpi.en.svg",
+      "bytes": 2430,
+      "sha256": "eecd558bb9e0b1ceee597c64913c465ce18fe86f898c9049f5acaa285af79ba4"
+    },
+    {
+      "path": "docs/images/hidpi.zh-CN.svg",
+      "bytes": 2425,
+      "sha256": "51964b93153ea37fb142356ec12c03ce9054837a64160f02c97e4040673fa05f"
+    },
+    {
+      "path": "docs/images/macpad-benefits-v1.png",
+      "bytes": 1647239,
+      "sha256": "855b98f89eb3fd862db3ceb2315624f6a5eaaf757c2d94d79ed24c8637c5e645"
     },
     {
       "path": "docs/隐私说明.md",
@@ -195,8 +215,8 @@
     },
     {
       "path": "docs/首次配置.md",
-      "bytes": 5031,
-      "sha256": "d7263c8735317cb00591b4654439ab1d77c0ddaf9c480d1c22a6e5861971d556"
+      "bytes": 15129,
+      "sha256": "dcd7e9e4c94ca869d7ab5c0194b0e547b709826901bced5dc6adbab3cb2f9e48"
     },
     {
       "path": "scripts/build.sh",

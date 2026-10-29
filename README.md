@@ -8,33 +8,40 @@
 
 [Download](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Setup guide](docs/GETTING_STARTED.md) · [Report a problem](https://github.com/Chihao-Sun/MacPad/issues)
 
+![MacPad: free forever, Mac-only setup, no iPad app, no extra display gear, automatic reconnection](docs/images/macpad-benefits-v1.png)
+
 Turn your iPad into a portable display for your Mac mini. Official MacPad releases will always be free and open source, with no subscription or activation code. Install it on the Mac; the iPad needs no extra app.
 
 Apple Sidecar carries the picture. MacPad keeps a virtual display alive, manages a mirrored desktop, and offers HiDPI sizes suited to the iPad's screen. With compatible devices and accounts, you can use an existing USB-C data cable or connect wirelessly, without buying a capture card or display dummy.
 
 Once you have configured and tested it, MacPad can run from the menu bar after login and connect automatically. Closing its settings window keeps the desktop running.
 
-## What MacPad makes easier
+## Five things you can skip
 
-- Install on your Mac only. No extra iPad app.
-- No separate BetterDisplay installation: virtual display and HiDPI adaptation are built into MacPad's own implementation.
-- No capture card, display dummy, special cable, or paid third-party display-software license. Use wireless or an existing USB-C data cable suited to your iPad, such as its original phone/tablet charging cable.
+**Set up your Mac once. Let your iPad reconnect after login.** Enable automatic connection and login launch, then leave the daily Sidecar steps to MacPad. It prefers a data cable when attached, tries wireless when unplugged, and attempts to recover interrupted connections.
 
-- Make use of each iPad’s native pixels and aspect ratio: generate HiDPI sizes that cover the panel, with a choice of text size, workspace, or custom dimensions. Frame rate, HDR, and compression remain controlled by Apple Sidecar.
+| What you can skip | How MacPad handles it |
+| --- | --- |
+| Paying for MacPad | Official releases are always free and GPL-3.0 open source, with no subscription or activation code. |
+| Installing an iPad app | Install MacPad on the Mac. The iPad receives your desktop through Apple Sidecar. |
+| A separate BetterDisplay installation | MacPad includes its own virtual display and HiDPI adaptation, generating sizes from the iPad's native pixels and aspect ratio. |
+| Extra display accessories | Use wireless or an ordinary data-capable phone/tablet USB-C cable. No capture card, display dummy or special cable is required. |
+| Reconnecting by hand every day | After first setup, MacPad finds the iPad after login, manages wired/wireless continuation, and still lets you choose the transport. |
 
-- Keep using the iPad after unplugging the physical monitor. The virtual display retains the Mac desktop after login.
-- Keep the iPad and virtual display on one mirrored desktop, so the pointer and windows cannot disappear into an invisible extension between them.
-- Start from the menu bar after login and connect automatically when no physical monitor is attached.
-- Prefer USB-C when a data cable is present, try wireless after unplugging it, and return to wired when it is reinserted. A temporary manual connection choice is also available.
-- Read the iPad's native pixels and aspect ratio to generate HiDPI choices. Choose larger text or more workspace, enter a custom size, and remember the choice for that device.
-- Keep at most one native connection request pending, even after a local timeout. After three unsuccessful attempts in one device-state cycle, wait for a real device change or a manual retry instead of repeatedly triggering system error dialogs. The system may still show an individual connection error.
-- Pause automatic connection with Disconnect and resume it with Connect. Settings can be closed while MacPad stays in the menu bar, without a persistent Dock icon.
-- Save a display size only after verifying the actual mode and mirror relationship. A failed change preserves the previous desktop.
+**Use the panel's pixels. Choose text you can read comfortably.** Select larger text, more workspace or a custom size suited to the panel. The iPad and virtual display share one mirrored desktop, keeping the pointer out of a hidden extended area between them. Close settings and keep working from the menu bar.
+
+[Download free MacPad](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Copy an AI setup prompt](docs/GETTING_STARTED.md#start-with-ai-assistance-recommended)
+
+Compatible devices and Apple Account conditions still apply, and MacPad runs after macOS login. The input devices, first setup and startup steps are collected in Important operations below.
 
 ## Important operations
 
 > [!IMPORTANT]
 > MacPad starts **after macOS login**. It cannot show the FileVault startup screen or enter your password. For monitor-free restart, configure automatic connection and login launch, then rehearse startup with a physical monitor. Missing these steps can leave the iPad without a Mac picture after reboot.
+
+### Start with AI setup
+
+Copy a prompt for [Codex](docs/GETTING_STARTED.md#ai-codex), [Claude Code](docs/GETTING_STARTED.md#ai-claude-code), [Cursor](docs/GETTING_STARTED.md#ai-cursor), or [ChatGPT / Claude / Gemini / DeepSeek](docs/GETTING_STARTED.md#ai-chat-assistant). An agent with local tools can perform installation and settings; other assistants can guide you. You handle system confirmations, iPad unlock, password entry and picture verification.
 
 ### First setup
 
@@ -69,6 +76,10 @@ Keep a login password and FileVault enabled. MacPad does not save or type passwo
 The [standalone setup guide](docs/GETTING_STARTED.md) contains these operations for use away from the README. Rehearse cable changes and login separately; one successful manual connection does not prove monitor-free startup. Fully offline operation still needs a separate test.
 
 ## How display sizes work
+
+![Native panel detection, HiDPI desktop and Sidecar scaling](docs/images/hidpi.en.svg)
+
+![MacPad display-size menu in the current Chinese UI](docs/images/display-size-menu.png)
 
 MacPad reads the Sidecar display's native pixel dimensions, then generates desktop sizes with the same aspect ratio. It does not apply one 11-inch preset list to every iPad. If detection fails, the interface labels the compatibility fallback instead of presenting it as a detected panel.
 
