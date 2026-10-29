@@ -32,3 +32,11 @@ Path('.build/MenuBarPillTests.swift').write_text('import AppKit\n'+s[a:b]+body)
 PY
 xcrun swiftc -parse-as-library .build/MenuBarPillTests.swift -o .build/MenuBarPillTests
 .build/MenuBarPillTests
+/usr/bin/python3 - <<'PY'
+from pathlib import Path
+s=Path('Sources/MacPad.swift').read_text()
+a=s.index('@MainActor final class ConnectShortcut:');b=s.index('struct ShortcutRecorder:',a)
+Path('.build/ShortcutTests.swift').write_text('import AppKit\nimport SwiftUI\nimport Carbon\n'+s[a:b]+Path('Tests/ShortcutTests.swift').read_text())
+PY
+xcrun swiftc -parse-as-library .build/ShortcutTests.swift -o .build/ShortcutTests
+.build/ShortcutTests

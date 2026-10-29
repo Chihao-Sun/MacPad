@@ -1,9 +1,15 @@
-# MacPad V1.3.2
+# MacPad V1.4.0
 
 **English** | [简体中文](版本状态.md)
 
-[Download V1.3.1](https://github.com/Chihao-Sun/MacPad/releases/tag/V1.3.1) · [Setup guide](GETTING_STARTED.md) · [Home](../README.md)
+[Download V1.3.2](https://github.com/Chihao-Sun/MacPad/releases/tag/V1.3.2) · [Setup guide](GETTING_STARTED.md) · [Home](../README.md)
 
+
+V1.4.0 / build 46 adds a global connect shortcut (default ⌃⌥⌘L), editable in Automatic connection, with inline registration/system-conflict feedback. Manual disconnect now remains paused across USB changes, system wake and MacPad restart. Diagnostics also provide independent per-process status during upgrades. Sidebar row/icon spacing follows the supplied macOS System Settings reference.
+
+The current source is V1.4.0; the downloadable release remains V1.3.2. Policy, shortcut-registration and build checks passed. Live shortcut reconnect and custom recording were verified on the development Mac. Physical sleep/wake, cable reinsertion while paused and new-device installation are not claimed as completed tests.
+
+## Previous baseline
 
 V1.3.2 / build 35 updates the app icon to v0.14.1 and menu bar to v0.5.6 (40×23 pt, #7163FF), with the approved Dock hero. Transport and HiDPI policies are unchanged.
 

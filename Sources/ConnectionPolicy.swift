@@ -32,6 +32,10 @@ enum AutomaticConnectionAction:Equatable {
 }
 
 enum ConnectionPolicy {
+    static func shouldDiscover(otherDisplay:Bool,paused:Bool,manual:Bool)->Bool {
+        manual || (!otherDisplay && !paused)
+    }
+
     // IOKit USB enumeration is diagnostic information. At login it may lag
     // behind Sidecar's paired/recent device list, so it must not veto USB-only
     // requests to a known device.

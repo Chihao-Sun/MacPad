@@ -1,6 +1,6 @@
 {
-  "version": "1.3.2",
-  "build": 35,
+  "version": "1.4.0",
+  "build": 46,
   "license": "GPL-3.0-only",
   "files": [
     {
@@ -86,7 +86,7 @@
     {
       "path": "BUILD",
       "bytes": 3,
-      "sha256": "90d7ec0f0acef104d8b6252794295f661a0149634868d02a1ae0c358099638f5"
+      "sha256": "a5331f18877e9e1543361e44b4cb0a1f5f0ed5f8297d850bf1fcc68bd7a3ab5f"
     },
     {
       "path": "CONTRIBUTING.md",
@@ -110,13 +110,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 13868,
-      "sha256": "9e59f68bdf962172e384438690a7db12ad9c3d92f371a499760d82d6166e6b53"
+      "bytes": 14685,
+      "sha256": "acef469c68e550c42bea1c443f0df89de038f0535d815ca42891047515904fa5"
     },
     {
       "path": "README.zh-CN.md",
-      "bytes": 13151,
-      "sha256": "9c7ec4d0951d83242f879456be9179ebc140120f15c7b48bbc3a773fc2f9e940"
+      "bytes": 13866,
+      "sha256": "d201a81f156ac86a47924a1df83677f7d58d10e19e514f7cde5ee0361603144b"
     },
     {
       "path": "Resources/MacPad.icns",
@@ -155,13 +155,13 @@
     },
     {
       "path": "Sources/ConnectionPolicy.swift",
-      "bytes": 4738,
-      "sha256": "8b13ad125ecf19d5c7ec00d8b6c894fca709b5e24513297ec82c188fab067f72"
+      "bytes": 4872,
+      "sha256": "56ef5cb46a849fd3704378b339e7fed2e4bd39304ed549a0ee2aeec257399bbd"
     },
     {
       "path": "Sources/MacPad.swift",
-      "bytes": 72095,
-      "sha256": "c5e07e9c1e757a177c7a0fd44054ce0e2a68f1423d7431e9da2746be4d44a65e"
+      "bytes": 82591,
+      "sha256": "f8cd567188d8c39c1cfd51701732c5680af197b0e15edc62db6e3555c14cfb3c"
     },
     {
       "path": "Sources/ResolutionPolicy.swift",
@@ -170,8 +170,8 @@
     },
     {
       "path": "Tests/ConnectionPolicyTests.swift",
-      "bytes": 6512,
-      "sha256": "71b361d05b8dc216a13d5010be52e8298c7d1564c1cc25ed64f5a88b497779aa"
+      "bytes": 6995,
+      "sha256": "a07c708105a282390b6275da2cca5b0cec96c2346a86f08f5cfa2a2ed149cdeb"
     },
     {
       "path": "Tests/ResolutionPolicyTests.swift",
@@ -179,9 +179,14 @@
       "sha256": "1fefb39c82ce5efb5b72f9acbe77014632ecd5d067117c7183703d274ad656b7"
     },
     {
+      "path": "Tests/ShortcutTests.swift",
+      "bytes": 2919,
+      "sha256": "7dbf878986aa00c8a3166ed8ca6eedb16315763d99e25ff5f7362f4ccf6cc0e2"
+    },
+    {
       "path": "VERSION",
       "bytes": 6,
-      "sha256": "33158972a53877b421cfe2598b8d93cab169963a4964b45ee889e85349979018"
+      "sha256": "78b591400c56b7b67b8cb3b2b8a8e65e9093897f02ce0878e6b5405c68620fa7"
     },
     {
       "path": "docs/GETTING_STARTED.md",
@@ -195,8 +200,8 @@
     },
     {
       "path": "docs/VERSION_STATUS.md",
-      "bytes": 3322,
-      "sha256": "dda9700ce9bd2ff832638d94e44a6ca1175bae4c3c411012691925c057d593f9"
+      "bytes": 4068,
+      "sha256": "bf02686cd61afe3fc65882906faf5a18907ff58ef199151f314f8bd371e075dd"
     },
     {
       "path": "docs/images/display-size-menu.png",
@@ -225,8 +230,8 @@
     },
     {
       "path": "docs/版本状态.md",
-      "bytes": 2998,
-      "sha256": "67e67d1ac0f4385a15ae2ea94cebf1027412581f2991603640c3a757edb18693"
+      "bytes": 3643,
+      "sha256": "581d4381945bcfea9031a571f8e62538f84c909b5a1620e9f39815990eb9ea9f"
     },
     {
       "path": "docs/隐私说明.md",
@@ -245,8 +250,8 @@
     },
     {
       "path": "scripts/test.sh",
-      "bytes": 1437,
-      "sha256": "72919d05087dc79993fe4a7226886c3392035623d9cf321c19596678d525ff02"
+      "bytes": 1879,
+      "sha256": "bb1d9271c4f941c688bb44170f921324c7833eb5a49235adc64a5348aa213fa8"
     }
   ]
 }

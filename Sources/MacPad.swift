@@ -46,8 +46,151 @@ struct ConnectionEvent:Identifiable {
     let warning:Bool
 }
 
+@MainActor final class ConnectShortcut: ObservableObject {
+    @Published private(set) var label = ""
+    @Published private(set) var message = ""
+    private var hotKey: EventHotKeyRef?
+    private var handler: EventHandlerRef?
+    private var serial: UInt32 = 0
+    private var activeID: UInt32 = 0
+    private var current: (key:UInt32, modifiers:UInt32, title:String)?
+    private var recording = false
+    private var lastFired = Date.distantPast
+    var action: (() -> Void)?
+    static let defaultsKey = "connectShortcut"
+    private let defaults:UserDefaults
+    init(defaults:UserDefaults = .standard,initialKey:UInt32=37,initialModifiers:UInt32=UInt32(cmdKey|optionKey|controlKey),initialTitle:String="⌃⌥⌘L") {
+        self.defaults=defaults
+        var spec = EventTypeSpec(eventClass:OSType(kEventClassKeyboard),eventKind:UInt32(kEventHotKeyPressed))
+        let result = InstallEventHandler(GetApplicationEventTarget(), { _, event, context in
+            guard let event, let context else {return OSStatus(eventNotHandledErr)}
+            var identifier = EventHotKeyID()
+            let status = GetEventParameter(event,EventParamName(kEventParamDirectObject),EventParamType(typeEventHotKeyID),nil,MemoryLayout<EventHotKeyID>.size,nil,&identifier)
+            guard status == noErr,identifier.signature == 0x4d504144 else {return OSStatus(eventNotHandledErr)}
+            let owner = Unmanaged<ConnectShortcut>.fromOpaque(context).takeUnretainedValue()
+            let id = identifier.id
+            DispatchQueue.main.async { [weak owner] in
+                guard let owner,!owner.recording,id == owner.activeID,Date().timeIntervalSince(owner.lastFired)>1 else {return}
+                owner.lastFired=Date();owner.action?()
+            }
+            return noErr
+        },1,&spec,Unmanaged.passUnretained(self).toOpaque(),&handler)
+        guard result == noErr else {message="快捷键暂时无法启用，请重新启动 MacPad";return}
+        let saved=defaults.dictionary(forKey:Self.defaultsKey)
+        set(key:(saved?["key"] as? NSNumber)?.uint32Value ?? initialKey,
+            modifiers:(saved?["modifiers"] as? NSNumber)?.uint32Value ?? initialModifiers,
+            title:saved?["title"] as? String ?? initialTitle,persist:false)
+    }
+    deinit {
+        if let hotKey {UnregisterEventHotKey(hotKey)}
+        if let handler {RemoveEventHandler(handler)}
+    }
+    func beginRecording() {
+        recording=true;message=""
+        if let hotKey {UnregisterEventHotKey(hotKey);self.hotKey=nil}
+    }
+    func endRecording() {
+        recording=false
+        guard hotKey == nil,let current else {return}
+        let result=register(key:current.key,modifiers:current.modifiers)
+        if result != noErr {message="原快捷键已被占用，请重新设置"}
+    }
+    private func register(key:UInt32,modifiers:UInt32)->OSStatus {
+        serial += 1
+        var candidate:EventHotKeyRef?
+        let result=RegisterEventHotKey(key,modifiers,EventHotKeyID(signature:0x4d504144,id:serial),GetApplicationEventTarget(),0,&candidate)
+        if result == noErr,let candidate {
+            if let hotKey {UnregisterEventHotKey(hotKey)}
+            hotKey=candidate;activeID=serial
+        }
+        return result
+    }
+    func set(key:UInt32,modifiers:UInt32,title:String,persist:Bool=true) {
+        guard handler != nil else {message="快捷键暂时无法启用，请重新启动 MacPad";return}
+        guard modifiers & UInt32(cmdKey|controlKey|optionKey) != 0 else {message="请加上 Command、Control 或 Option 键";return}
+        if let current,current.key == key,current.modifiers == modifiers,hotKey != nil {message="";return}
+        var symbolic:Unmanaged<CFArray>?
+        if CopySymbolicHotKeys(&symbolic) == noErr,let array=symbolic?.takeRetainedValue() as? [[String:Any]] {
+            for entry in array {
+                if (entry["kHISymbolicHotKeyEnabled"] as? NSNumber)?.boolValue == true,
+                   (entry["kHISymbolicHotKeyCode"] as? NSNumber)?.uint32Value == key,
+                   (entry["kHISymbolicHotKeyModifiers"] as? NSNumber)?.uint32Value == modifiers {
+                    message="快捷键与系统快捷键冲突，请换一个";return
+                }
+            }
+        }
+        guard register(key:key,modifiers:modifiers) == noErr else {message="快捷键已被占用或无法启用，请换一个";return}
+        current=(key,modifiers,title);label=title;message=""
+        if persist {defaults.set(["key":key,"modifiers":modifiers,"title":title],forKey:Self.defaultsKey)}
+    }
+    func reloadSaved() {
+        let saved=defaults.dictionary(forKey:Self.defaultsKey)
+        set(key:(saved?["key"] as? NSNumber)?.uint32Value ?? 37,
+            modifiers:(saved?["modifiers"] as? NSNumber)?.uint32Value ?? UInt32(cmdKey|optionKey|controlKey),
+            title:saved?["title"] as? String ?? "⌃⌥⌘L",persist:false)
+    }
+    func reset() {set(key:37,modifiers:UInt32(cmdKey|optionKey|controlKey),title:"⌃⌥⌘L")}
+}
+
+struct ShortcutRecorder: NSViewRepresentable {
+    let shortcut:ConnectShortcut
+    func makeNSView(context:Context)->Recorder {let view=Recorder();view.shortcut=shortcut;return view}
+    func updateNSView(_ view:Recorder,context:Context) {view.shortcut=shortcut;view.updateLabel()}
+    static func dismantleNSView(_ view:Recorder,coordinator:()) {view.finish()}
+    final class Recorder:NSButton {
+        weak var shortcut:ConnectShortcut?
+        private var recording=false
+        override init(frame:NSRect) {
+            super.init(frame:frame);bezelStyle = .rounded;isBordered=false
+            font = .systemFont(ofSize:13,weight:.medium);alignment = .right
+            target=self;action=#selector(start)
+            toolTip="点按修改快捷键；Esc 取消；右键恢复默认"
+            setAccessibilityLabel("连接快捷键")
+            let context=NSMenu()
+            let reset=NSMenuItem(title:"恢复默认快捷键",action:#selector(resetShortcut),keyEquivalent:"")
+            reset.target=self;context.addItem(reset);menu=context
+        }
+        required init?(coder:NSCoder) {fatalError("init(coder:) has not been implemented")}
+        override var acceptsFirstResponder:Bool {true}
+        func updateLabel() {
+            if !recording {title=shortcut?.label.isEmpty == false ? shortcut!.label : "未设置";setAccessibilityValue(title)}
+        }
+        @objc private func resetShortcut() {finish();shortcut?.reset();updateLabel()}
+        @objc private func start() {
+            guard !recording else {return}
+            recording=true;shortcut?.beginRecording();title="按下快捷键…";setAccessibilityValue(title);window?.makeFirstResponder(self)
+        }
+        func finish() {
+            guard recording else {return}
+            recording=false;shortcut?.endRecording();updateLabel()
+        }
+        override func resignFirstResponder()->Bool {finish();return super.resignFirstResponder()}
+        override func performKeyEquivalent(with event:NSEvent)->Bool {
+            if recording,window?.firstResponder === self {capture(event);return true}
+            return super.performKeyEquivalent(with:event)
+        }
+        override func keyDown(with event:NSEvent) {
+            if recording {capture(event)} else {super.keyDown(with:event)}
+        }
+        private func capture(_ event:NSEvent) {
+            if event.keyCode == 53 {finish();window?.makeFirstResponder(nil);return}
+            let flags=event.modifierFlags.intersection(.deviceIndependentFlagsMask)
+            var modifiers:UInt32=0;var title=""
+            if flags.contains(.control) {modifiers |= UInt32(controlKey);title += "⌃"}
+            if flags.contains(.option) {modifiers |= UInt32(optionKey);title += "⌥"}
+            if flags.contains(.shift) {modifiers |= UInt32(shiftKey);title += "⇧"}
+            if flags.contains(.command) {modifiers |= UInt32(cmdKey);title += "⌘"}
+            guard let characters=event.charactersIgnoringModifiers,characters.count == 1,
+                  let scalar=characters.unicodeScalars.first,CharacterSet.alphanumerics.contains(scalar) else {return}
+            shortcut?.set(key:UInt32(event.keyCode),modifiers:modifiers,title:title+characters.uppercased())
+            finish();window?.makeFirstResponder(nil)
+        }
+    }
+}
+
 @MainActor final class MacPadModel: ObservableObject {
     @Published var names:[String]=[]
+    let shortcut = ConnectShortcut()
     @Published var selection=""
     @Published var usbCount=0
     @Published var status="连接 iPad，开始使用"
@@ -74,7 +217,7 @@ struct ConnectionEvent:Identifiable {
     private var pendingPanelResolution:ResolutionChoice?
     private var resolutionDisplay:UInt32=0
     @Published var autoConnect=UserDefaults.standard.bool(forKey:"autoConnect") {
-        didSet {UserDefaults.standard.set(autoConnect,forKey:"autoConnect"); paused=false;attempts=0;requestGate.resume();nextAttempt = .distantPast;if autoConnect {scheduleTick(after:0.1)}}
+        didSet {UserDefaults.standard.set(autoConnect,forKey:"autoConnect"); attempts=0;requestGate.resume();nextAttempt = .distantPast;if autoConnect {scheduleTick(after:0.1)}}
     }
     @Published var loginEnabled=SMAppService.mainApp.status == .enabled
     @Published var logs:[String]=[]
@@ -112,7 +255,9 @@ struct ConnectionEvent:Identifiable {
     private var discoveredNames=Set<String>()
     private var newlyDiscovered=Set<String>()
     private var healthySince:Date?
-    private var paused=false
+    private var paused=UserDefaults.standard.bool(forKey:"userDisconnected") {
+        didSet { UserDefaults.standard.set(paused,forKey:"userDisconnected") }
+    }
     private var nextAttempt=Date.distantPast
     private var headlessSince:Date?
     private var lastDiagnosticSignature:Data?
@@ -125,6 +270,7 @@ struct ConnectionEvent:Identifiable {
     private let started=Date()
     private let diagnosticDirectory=FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("MacPad",isDirectory:true)
     init() {
+        shortcut.action = { [weak self] in self?.connect(manual:true,trigger:"shortcut") }
         refresh(discover:true,hardware:true)
         log("MacPad \(Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "") 启动")
         // Device/display changes drive reconciliation. A tolerant 30-second
@@ -151,7 +297,7 @@ struct ConnectionEvent:Identifiable {
         NSWorkspace.shared.notificationCenter.addObserver(forName:NSWorkspace.didWakeNotification,object:nil,queue:.main) { [weak self] _ in
             Task { @MainActor in
                 guard let self else{return}
-                self.sleeping=false;self.paused=false;self.attempts=0;self.requestGate.resume();self.headlessSince=nil;self.nextAttempt = .distantPast
+                self.sleeping=false;self.attempts=0;self.requestGate.resume();self.headlessSince=nil;self.nextAttempt = .distantPast
                 self.transportChoice = .automatic;self.manualChoiceCablePresent=nil;self.manualFallback=nil
                 self.timer?.fireDate=Date().addingTimeInterval(30);self.environmentChanged(discover:true)
             }
@@ -200,7 +346,8 @@ struct ConnectionEvent:Identifiable {
         if logs.count>80 {logs.removeFirst(logs.count-80)}
     }
     func refresh(discover:Bool=false,hardware:Bool=false,forceDiscovery:Bool=false) {
-        if discover && (forceDiscovery || names.isEmpty || selection.isEmpty || (!hasIPadScreen && !rapidRecovery && Date().timeIntervalSince(lastDiscovery)>60)) {
+        let discoveryAllowed = !discover || ConnectionPolicy.shouldDiscover(otherDisplay:!DisplaySnapshot.read().others.isEmpty,paused:paused,manual:forceDiscovery)
+        if discover && discoveryAllowed && (forceDiscovery || names.isEmpty || selection.isEmpty || (!hasIPadScreen && !rapidRecovery && Date().timeIntervalSince(lastDiscovery)>60)) {
             let began=Date()
             let devices=MPBridge.devices()
             let found=Array(Set(devices.compactMap{$0["name"] as? String})).sorted()
@@ -225,7 +372,7 @@ struct ConnectionEvent:Identifiable {
             cableChangedAt=Date();nextTransportAttempt = .distantPast
             if (hasIPadScreen || resumeAfterMigration) && !paused && automaticTransport {beginRecovery("线缆变化")}
         }
-        if previousUSB==0 && usbCount>0 {attempts=0;paused=false;nextAttempt = .distantPast;log("检测到 USB iPad")}
+        if previousUSB==0 && usbCount>0 {attempts=0;nextAttempt = .distantPast;log("检测到 USB iPad")}
         if previousUSB>0 && usbCount==0 {log("USB 数据线已拔出");nextAttempt = .distantPast}
         snapshot=DisplaySnapshot.read()
         if snapshot.ipad,(MPBridge.connectionInfo(forName:selection)["connected"] as? NSNumber)?.boolValue != true,
@@ -489,7 +636,8 @@ struct ConnectionEvent:Identifiable {
         guard choice != .wired || usbCount>0 else {transportMessage="请先连接 USB-C 数据线。";return}
         let previous=transportChoice
         transportChoice=choice;manualChoiceCablePresent=choice == .automatic ? nil : (usbCount>0)
-        paused=false;attempts=0;transportMessage="";nextTransportAttempt = .distantPast
+        attempts=0;transportMessage="";nextTransportAttempt = .distantPast
+        if paused && !hasIPadScreen { writeDiagnostics(force:true); return }
         if !hasIPadScreen {beginRecovery("手动选择",reset:true);connect(manual:true,trigger:"manual-transport");return}
         let expected=TransportPolicy.expected(choice:choice,usbPresent:usbCount>0)
         // An explicit return to Automatic creates a mobile system session.
@@ -631,7 +779,7 @@ struct ConnectionEvent:Identifiable {
         log(result == .success ? "iPad 已镜像高清虚拟桌面" : "镜像设置失败，系统错误 \(result.rawValue)")
     }
     func connect(manual:Bool=true,trigger:String?=nil,requested:ConnectionTransport?=nil) {
-        refresh(discover:selection.isEmpty,hardware:true)
+        refresh(discover:manual || selection.isEmpty,hardware:true,forceDiscovery:manual)
         guard !hasIPadScreen else {return}
         guard !busy else{return}
         guard requestGate.pending==nil else {
@@ -729,6 +877,7 @@ struct ConnectionEvent:Identifiable {
     func writeDiagnostics(force:Bool=false) {
         let render=CGDisplayCopyDisplayMode(virtualID)
         var record:[String:Any]=["version":Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") ?? "unknown","build":Bundle.main.object(forInfoDictionaryKey:"CFBundleVersion") ?? "unknown","pid":ProcessInfo.processInfo.processIdentifier,"started":ISO8601DateFormatter().string(from:started),"appPath":Bundle.main.bundlePath,"status":status,"usbIPadCount":usbCount,"iPadConnected":hasIPadScreen,"mirrored":mirrored,"displaySize":selectedResolution,"virtualDisplayID":virtualID,"otherDisplayCount":otherDisplays.count,"autoConnectWhenHeadless":autoConnect,"loginEnabled":SMAppService.mainApp.status == .enabled,"busy":busy,"adjustingResolution":adjustingResolution,"resolutionMessage":resolutionMessage,"retryPaused":paused,"controlWindowVisible":NSApp.windows.contains{$0.title=="MacPad" && $0.isVisible},"activationPolicy":NSApp.activationPolicy().rawValue,"launchContext":launchContext,"automaticPhase":automaticPhase,"lastConnectionTrigger":lastConnectionTrigger,"connectionAttemptCount":attempts,"displays":snapshot.rows]
+        record["connectShortcut"]=shortcut.label;record["shortcutMessage"]=shortcut.message
         record["automaticTransport"]=automaticTransport;record["switchingTransport"]=switchingTransport
         record["connectionMethod"]=transportDescription;record["configuredTransport"]=configuredTransport ?? -1
         record["requestedTransport"]=connectionTarget?.rawValue ?? "none"
@@ -749,7 +898,9 @@ struct ConnectionEvent:Identifiable {
         record["checked"]=ISO8601DateFormatter().string(from:Date())
         do {
             try FileManager.default.createDirectory(at:diagnosticDirectory,withIntermediateDirectories:true)
-            try JSONSerialization.data(withJSONObject:record,options:[.prettyPrinted,.sortedKeys]).write(to:diagnosticDirectory.appendingPathComponent("status.json"),options:.atomic)
+            let data = try JSONSerialization.data(withJSONObject:record,options:[.prettyPrinted,.sortedKeys])
+            try data.write(to:diagnosticDirectory.appendingPathComponent("status-\(ProcessInfo.processInfo.processIdentifier).json"),options:.atomic)
+            try data.write(to:diagnosticDirectory.appendingPathComponent("status.json"),options:.atomic)
             let text=logs.joined(separator:"\n")
             if text != lastLogText {try text.write(to:diagnosticDirectory.appendingPathComponent("latest-session.log"),atomically:true,encoding:.utf8);lastLogText=text}
         } catch { /* A diagnostic write must never interrupt a display session. */ }
@@ -845,13 +996,13 @@ struct MacPadView:View {
                                 Text(connectionText).font(.system(size:12))
                             }.foregroundStyle(pane == .display ? Color.white.opacity(0.9) : Color.secondary)
                         }
-                    }.padding(.vertical,5).listRowInsets(EdgeInsets(top:4,leading:6,bottom:4,trailing:6)).tag(MacPadPane.display)
+                    }.padding(.vertical,5).listRowInsets(EdgeInsets(top:4,leading:4,bottom:4,trailing:6)).tag(MacPadPane.display)
                     }
                     Section {
-                    HStack(spacing:10) {sidebarIcon("cable.connector",color:.teal);Text("自动连接")}.frame(height:22).listRowInsets(EdgeInsets(top:5,leading:6,bottom:5,trailing:6)).tag(MacPadPane.automation)
-                    HStack(spacing:10) {sidebarIcon("list.bullet.rectangle",color:.gray);Text("连接记录")}.frame(height:22).listRowInsets(EdgeInsets(top:5,leading:6,bottom:5,trailing:6)).tag(MacPadPane.activity)
+                    HStack(spacing:5) {sidebarIcon("cable.connector",color:.teal);Text("自动连接")}.frame(height:20).listRowInsets(EdgeInsets(top:6,leading:4,bottom:6,trailing:6)).tag(MacPadPane.automation)
+                    HStack(spacing:5) {sidebarIcon("list.bullet.rectangle",color:.gray);Text("连接记录")}.frame(height:20).listRowInsets(EdgeInsets(top:6,leading:4,bottom:6,trailing:6)).tag(MacPadPane.activity)
                     } header: {Color.clear.frame(height:10).accessibilityHidden(true)}
-                }.listStyle(.sidebar).scrollContentBackground(.hidden).font(.system(size:13)).contentMargins(.horizontal,8,for:.scrollContent)
+                }.listStyle(.sidebar).environment(\.defaultMinListRowHeight,32).scrollContentBackground(.hidden).font(.system(size:13)).contentMargins(.horizontal,0,for:.scrollContent)
                 HStack(spacing:10) {
                     MacPadMark().scaleEffect(0.5).frame(width:28,height:28)
                     VStack(alignment:.leading,spacing:3) {Text("MacPad").font(.system(size:12,weight:.semibold));Text("V\(version)").font(.system(size:11)).foregroundStyle(.secondary)}
@@ -878,7 +1029,7 @@ struct MacPadView:View {
     }
     private func sidebarIcon(_ name:String,color:Color)->some View {
         Image(systemName:name).font(.system(size:13,weight:.medium)).foregroundStyle(.white)
-            .frame(width:22,height:22).background(color,in:RoundedRectangle(cornerRadius:5,style:.continuous)).frame(width:28)
+            .frame(width:20,height:20).background(color,in:RoundedRectangle(cornerRadius:5,style:.continuous))
     }
     private var title:String {
         switch pane ?? .display {case .display:return "连接与显示";case .automation:return "自动连接";case .activity:return "连接记录"}
@@ -971,7 +1122,7 @@ struct MacPadView:View {
                 Toggle(isOn:$model.autoConnect) {
                     VStack(alignment:.leading,spacing:5) {
                         Text("没有实体显示器时自动连接")
-                        Text("登录后或拔掉外接屏时，插线优先有线；没有数据线时尝试无线，并保持镜像桌面。")
+                        Text("登录后检测到实体显示器时，不自动搜索 iPad；拔掉外接屏后再寻找，插线优先有线，否则尝试无线。")
                             .font(.system(size:12)).foregroundStyle(.secondary).fixedSize(horizontal:false,vertical:true)
                     }
                 }
@@ -985,6 +1136,9 @@ struct MacPadView:View {
                     }
                 }
             } footer: {Text("无线连接需要两端开启 Wi-Fi、蓝牙和接力，登录同一 Apple 账户并保持在附近。点击“断开”会暂停连接；想切无线时直接拔线。")}
+            Section {
+                ShortcutSettings(shortcut:model.shortcut)
+            } footer: {Text("按快捷键搜索并连接 iPad；手动断开后保持暂停，直到再次连接。")}
             Section {
                 Toggle("登录 Mac 后启动",isOn:Binding(get:{model.loginEnabled},set:model.setLogin))
             } footer: {Text("开机密码仍由你输入。登录后，MacPad 在菜单栏运行。")}
@@ -1013,6 +1167,24 @@ struct MacPadView:View {
     }
 }
 
+struct ShortcutSettings: View {
+    @ObservedObject var shortcut: ConnectShortcut
+    var body: some View {
+        VStack(alignment:.leading,spacing:6) {
+            HStack {
+                Text("连接快捷键")
+                Spacer()
+                ShortcutRecorder(shortcut:shortcut).frame(width:104,height:24)
+                if !shortcut.message.isEmpty {
+                    Image(systemName:"exclamationmark.triangle").foregroundStyle(.secondary)
+                        .help(shortcut.message).accessibilityLabel(shortcut.message)
+                }
+            }
+            if !shortcut.message.isEmpty { Text(shortcut.message).font(.system(size:12)).foregroundStyle(.orange) }
+        }
+    }
+}
+
 @MainActor final class AppDelegate:NSObject,NSApplicationDelegate,NSWindowDelegate {
     var model:MacPadModel!
     var window:NSWindow!
@@ -1022,7 +1194,15 @@ struct MacPadView:View {
         if CommandLine.arguments.contains("--enable-headless") {model.autoConnect=true;model.setLogin(true)}
         // During an upgrade the previous process can keep its display until the
         // new process owns another. Never terminate the previous process here.
-        if CommandLine.arguments.contains("--handover") {_=model.ensureVirtual();model.refresh()}
+        if CommandLine.arguments.contains("--handover") {
+            _=model.ensureVirtual();model.refresh()
+            // The previous display owner can reserve the same global shortcut
+            // until the installer confirms the new independent mirror and exits it.
+            DispatchQueue.main.asyncAfter(deadline:.now()+8) { [weak self] in
+                guard let self,self.model.shortcut.label.isEmpty else {return}
+                self.model.shortcut.reloadSaved();self.model.writeDiagnostics(force:true)
+            }
+        }
         model.writeDiagnostics(force:true)
         let menu=NSMenu()
         menu.addItem(withTitle:"打开 MacPad",action:#selector(show),keyEquivalent:"").target=self

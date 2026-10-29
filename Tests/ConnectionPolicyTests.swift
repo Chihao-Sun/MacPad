@@ -5,6 +5,11 @@ import Foundation
         func decide(_ device:Bool=true,_ external:Bool=false,_ paused:Bool=false,_ busy:Bool=false,_ retry:TimeInterval=0)->AutomaticConnectionAction {
             ConnectionPolicy.action(enabled:true,otherDisplay:external,connected:false,busy:busy,paused:paused,settling:false,knownDevice:device,retryIn:retry)
         }
+        assert(!ConnectionPolicy.shouldDiscover(otherDisplay:true,paused:false,manual:false))
+        assert(!ConnectionPolicy.shouldDiscover(otherDisplay:false,paused:true,manual:false))
+        assert(ConnectionPolicy.shouldDiscover(otherDisplay:false,paused:false,manual:false))
+        assert(ConnectionPolicy.shouldDiscover(otherDisplay:true,paused:true,manual:true))
+        print("PASS: external display and manual pause suppress discovery; explicit connection can discover")
         // Cold login: a paired iPad may exist before IOKit reports a USB iPad.
         // The decision intentionally has no USB count prerequisite.
         assert(decide() == .connect)
