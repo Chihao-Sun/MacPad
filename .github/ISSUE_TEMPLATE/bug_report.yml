@@ -1,0 +1,32 @@
+name: 连接或显示问题
+description: 报告可复现的问题，请勿上传私密日志或凭据。
+body:
+  - type: input
+    id: version
+    attributes:
+      label: MacPad 版本
+    validations:
+      required: true
+  - type: textarea
+    id: devices
+    attributes:
+      label: 设备与系统
+      description: Mac/iPad 型号及 macOS/iPadOS 版本，不填写序列号或账户信息。
+    validations:
+      required: true
+  - type: dropdown
+    id: transport
+    attributes:
+      label: 发生问题时的连接方式
+      options:
+        - USB-C 有线
+        - 无线
+        - 拔线或插线切换中
+        - 尚未连接
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤与观察
+      description: 是否已登录 Mac、有无实体屏、是否主动断开、手动连接能否恢复；分享日志前请删去个人设备名称和路径。
+    validations:
+      required: true

@@ -1,0 +1,17 @@
+.DS_Store
+.build/
+*.app/
+*.dmg
+*.zip
+*.p12
+*.p8
+*.key
+*.mobileprovision
+.env
+.env.*
+!.env.example
+DerivedData/
+test-evidence/
+status.json
+latest-session.log
+__pycache__/

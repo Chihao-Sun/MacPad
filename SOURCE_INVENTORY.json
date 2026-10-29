@@ -1,0 +1,132 @@
+{
+  "version": "1.2.1",
+  "build": 27,
+  "license": "GPL-3.0-only",
+  "files": [
+    {
+      "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
+      "bytes": 940,
+      "sha256": "549b6c7f895d4238d925c02e88457f8438fcf9c4aeb82cbdedc434901197b1f0"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 170,
+      "sha256": "e57386191c86184a4e68e8a24cfebbb374f52da849cb5e7b6d5d746137e6fa07"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/Assets/app-artwork.png",
+      "bytes": 828318,
+      "sha256": "e232721db47f76d0dbe33adb71813395c0f7b19624c88ecf962d59bdea6f0532"
+    },
+    {
+      "path": "Assets/MacPad-identity/MacPad.icon/icon.json",
+      "bytes": 624,
+      "sha256": "43e6a6d416356f198a2b01592912dd372056811ba1e741fb7e59aabbdf7f5f54"
+    },
+    {
+      "path": "Assets/MacPad-identity/MenuBar.svg",
+      "bytes": 578,
+      "sha256": "d1771160de2a2c455c07a36eb3e7e6714062af3bab2423f3af9e84e0e76c7c4d"
+    },
+    {
+      "path": "BUILD",
+      "bytes": 3,
+      "sha256": "932ab0a0e4191d32c0af7b3f565b7b180dbe9869378abc5816f9add54b806e7f"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "bytes": 1401,
+      "sha256": "7ecaf64d6457375e70bc9738fe8b35b803dd6fbd7569cb308b2641dc7a21e959"
+    },
+    {
+      "path": "COPYRIGHT",
+      "bytes": 448,
+      "sha256": "b29142819ee0d244b9954dad48aafecdc85d7f65027b25e63e50b2d4a1694392"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 34674,
+      "sha256": "fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0"
+    },
+    {
+      "path": "README.md",
+      "bytes": 7148,
+      "sha256": "287cc4b8c6ae7e301fc0954b94e568a485098d53f9b409e13c7cb8d3a89ac64a"
+    },
+    {
+      "path": "Resources/MacPad.icns",
+      "bytes": 1354371,
+      "sha256": "e4b5fdbeb36018627094a8e6f18220a8a58978937b558a7dea9d7ba05eb0c362"
+    },
+    {
+      "path": "Resources/MacPadIcon.png",
+      "bytes": 2866515,
+      "sha256": "f7c8fb14406fe83520402a9bdabed5d49ecd58a4f2576e691249c03ab23f7763"
+    },
+    {
+      "path": "Resources/MacPadMenuBar@1x.png",
+      "bytes": 850,
+      "sha256": "16420195d1f6e812d36b8a64ecd017c2d2c6f6d362af6a16100fdb3463f96ca3"
+    },
+    {
+      "path": "Resources/MacPadMenuBar@2x.png",
+      "bytes": 1542,
+      "sha256": "52613e61a4605bfbbe8a4808692362a11bfd82fb6df545fc4dd1bd43c2a7b626"
+    },
+    {
+      "path": "Resources/MacPadMenuBar@3x.png",
+      "bytes": 2539,
+      "sha256": "f267e0f3334ba09f38cb27c0dde4401c2d9d13aa9f72bca68c5855e9271400ee"
+    },
+    {
+      "path": "Sources/Bridge.h",
+      "bytes": 923,
+      "sha256": "1cc8ac99c705b856ea7dfcc36680369125301c2b9be518940e0eb9fe25234279"
+    },
+    {
+      "path": "Sources/Bridge.m",
+      "bytes": 13907,
+      "sha256": "8b6a6ad7014743e51844759709f0f6fdfd1c789c9914981232c1597ebf233cfa"
+    },
+    {
+      "path": "Sources/ConnectionPolicy.swift",
+      "bytes": 3771,
+      "sha256": "de69e3fe1e36ddd218d9621b936850b95b6a429dda0ef582e9225f8633269c38"
+    },
+    {
+      "path": "Sources/MacPad.swift",
+      "bytes": 61552,
+      "sha256": "2f963674e3832ef0110e0f6e3d898130d8f48e029d3815b34df4ea7b2c74cbd4"
+    },
+    {
+      "path": "Tests/ConnectionPolicyTests.swift",
+      "bytes": 4960,
+      "sha256": "4d19a057d97d478644f9cff3dc1e307bc84c178651481f7d7accf9d0c546880b"
+    },
+    {
+      "path": "VERSION",
+      "bytes": 6,
+      "sha256": "6cf4e084b47f33c9b02ef79279d157833868f8f70514169a768be353ee328fea"
+    },
+    {
+      "path": "docs/隐私说明.md",
+      "bytes": 1381,
+      "sha256": "5fd107d185e2b7bd2ba0b762abeaa51ded0a3ba20c641f9feed33f75e423baef"
+    },
+    {
+      "path": "docs/首次配置.md",
+      "bytes": 4201,
+      "sha256": "903e63ce1a8801ce0f95e4805d882df61b5f37224321b9789d119a3d0816ed69"
+    },
+    {
+      "path": "scripts/build.sh",
+      "bytes": 2017,
+      "sha256": "dd9a556d4e61765bc50157c4971fdb1c76a9789abe0366ee63d12c666a6f8b43"
+    },
+    {
+      "path": "scripts/test.sh",
+      "bytes": 1298,
+      "sha256": "a96b8aec454b28b5e7b35f9c33993f36acf375dd4a4860a089a89d03394670ad"
+    }
+  ]
+}
