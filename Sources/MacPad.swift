@@ -140,6 +140,9 @@ struct ShortcutRecorder: NSViewRepresentable {
     final class Recorder:NSButton {
         weak var shortcut:ConnectShortcut?
         private var recording=false
+        private var cancelTimer:Timer?
+        private var outsideMonitor:Any?
+        private var resignObserver:NSObjectProtocol?
         override init(frame:NSRect) {
             super.init(frame:frame);bezelStyle = .rounded;isBordered=false
             font = .systemFont(ofSize:13,weight:.medium);alignment = .right
@@ -157,12 +160,26 @@ struct ShortcutRecorder: NSViewRepresentable {
         }
         @objc private func resetShortcut() {finish();shortcut?.reset();updateLabel()}
         @objc private func start() {
-            guard !recording else {return}
+            if recording {finish();window?.makeFirstResponder(nil);return}
             recording=true;shortcut?.beginRecording();title="按下快捷键…";setAccessibilityValue(title);window?.makeFirstResponder(self)
+            cancelTimer=Timer.scheduledTimer(withTimeInterval:5,repeats:false) { [weak self] _ in
+                Task { @MainActor in self?.finish();self?.window?.makeFirstResponder(nil) }
+            }
+            outsideMonitor=NSEvent.addLocalMonitorForEvents(matching:[.leftMouseDown,.rightMouseDown]) { [weak self] event in
+                guard let self else {return event}
+                if event.window !== self.window || !self.bounds.contains(self.convert(event.locationInWindow,from:nil)) {self.finish()}
+                return event
+            }
+            resignObserver=NotificationCenter.default.addObserver(forName:NSWindow.didResignKeyNotification,object:window,queue:.main) { [weak self] _ in
+                Task { @MainActor in self?.finish() }
+            }
         }
         func finish() {
             guard recording else {return}
-            recording=false;shortcut?.endRecording();updateLabel()
+            recording=false;cancelTimer?.invalidate();cancelTimer=nil
+            if let outsideMonitor {NSEvent.removeMonitor(outsideMonitor);self.outsideMonitor=nil}
+            if let resignObserver {NotificationCenter.default.removeObserver(resignObserver);self.resignObserver=nil}
+            shortcut?.endRecording();updateLabel()
         }
         override func resignFirstResponder()->Bool {finish();return super.resignFirstResponder()}
         override func performKeyEquivalent(with event:NSEvent)->Bool {
@@ -876,7 +893,7 @@ struct ShortcutRecorder: NSViewRepresentable {
     }
     func writeDiagnostics(force:Bool=false) {
         let render=CGDisplayCopyDisplayMode(virtualID)
-        var record:[String:Any]=["version":Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") ?? "unknown","build":Bundle.main.object(forInfoDictionaryKey:"CFBundleVersion") ?? "unknown","pid":ProcessInfo.processInfo.processIdentifier,"started":ISO8601DateFormatter().string(from:started),"appPath":Bundle.main.bundlePath,"status":status,"usbIPadCount":usbCount,"iPadConnected":hasIPadScreen,"mirrored":mirrored,"displaySize":selectedResolution,"virtualDisplayID":virtualID,"otherDisplayCount":otherDisplays.count,"autoConnectWhenHeadless":autoConnect,"loginEnabled":SMAppService.mainApp.status == .enabled,"busy":busy,"adjustingResolution":adjustingResolution,"resolutionMessage":resolutionMessage,"retryPaused":paused,"controlWindowVisible":NSApp.windows.contains{$0.title=="MacPad" && $0.isVisible},"activationPolicy":NSApp.activationPolicy().rawValue,"launchContext":launchContext,"automaticPhase":automaticPhase,"lastConnectionTrigger":lastConnectionTrigger,"connectionAttemptCount":attempts,"displays":snapshot.rows]
+        var record:[String:Any]=["version":Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") ?? "unknown","build":Bundle.main.object(forInfoDictionaryKey:"CFBundleVersion") ?? "unknown","pid":ProcessInfo.processInfo.processIdentifier,"started":ISO8601DateFormatter().string(from:started),"appPath":Bundle.main.bundlePath,"status":status,"usbIPadCount":usbCount,"iPadConnected":hasIPadScreen,"mirrored":mirrored,"displaySize":selectedResolution,"virtualDisplayID":virtualID,"otherDisplayCount":otherDisplays.count,"autoConnectWhenHeadless":autoConnect,"loginEnabled":SMAppService.mainApp.status == .enabled,"busy":busy,"adjustingResolution":adjustingResolution,"resolutionMessage":resolutionMessage,"retryPaused":paused,"controlWindowVisible":NSApp.windows.contains{$0.identifier?.rawValue=="MacPad.control" && $0.isVisible},"activationPolicy":NSApp.activationPolicy().rawValue,"launchContext":launchContext,"automaticPhase":automaticPhase,"lastConnectionTrigger":lastConnectionTrigger,"connectionAttemptCount":attempts,"displays":snapshot.rows]
         record["connectShortcut"]=shortcut.label;record["shortcutMessage"]=shortcut.message
         record["automaticTransport"]=automaticTransport;record["switchingTransport"]=switchingTransport
         record["connectionMethod"]=transportDescription;record["configuredTransport"]=configuredTransport ?? -1
@@ -983,7 +1000,7 @@ struct MacPadView:View {
     private var deviceName:String {model.selection.isEmpty ? "iPad 显示器" : model.selection}
     private var connectionText:String {model.switchingTransport ? "正在切换" : (model.hasIPadScreen ? "已连接" : (model.busy ? "正在连接" : "未连接"))}
     var body:some View {
-        HSplitView {
+        NavigationSplitView(columnVisibility:.constant(.all)) {
             VStack(spacing:0) {
                 List(selection:$pane) {
                     Section {
@@ -996,11 +1013,11 @@ struct MacPadView:View {
                                 Text(connectionText).font(.system(size:12))
                             }.foregroundStyle(pane == .display ? Color.white.opacity(0.9) : Color.secondary)
                         }
-                    }.padding(.vertical,5).listRowInsets(EdgeInsets(top:4,leading:4,bottom:4,trailing:6)).tag(MacPadPane.display)
+                    }.padding(.vertical,5).listRowInsets(EdgeInsets(top:4,leading:0,bottom:4,trailing:6)).tag(MacPadPane.display)
                     }
                     Section {
-                    HStack(spacing:5) {sidebarIcon("cable.connector",color:.teal);Text("自动连接")}.frame(height:20).listRowInsets(EdgeInsets(top:6,leading:4,bottom:6,trailing:6)).tag(MacPadPane.automation)
-                    HStack(spacing:5) {sidebarIcon("list.bullet.rectangle",color:.gray);Text("连接记录")}.frame(height:20).listRowInsets(EdgeInsets(top:6,leading:4,bottom:6,trailing:6)).tag(MacPadPane.activity)
+                    HStack(spacing:5) {sidebarIcon("cable.connector",color:.teal);Text("自动连接")}.frame(height:20).listRowInsets(EdgeInsets(top:6,leading:0,bottom:6,trailing:6)).tag(MacPadPane.automation)
+                    HStack(spacing:5) {sidebarIcon("list.bullet.rectangle",color:.gray);Text("连接记录")}.frame(height:20).listRowInsets(EdgeInsets(top:6,leading:0,bottom:6,trailing:6)).tag(MacPadPane.activity)
                     } header: {Color.clear.frame(height:10).accessibilityHidden(true)}
                 }.listStyle(.sidebar).environment(\.defaultMinListRowHeight,32).scrollContentBackground(.hidden).font(.system(size:13)).contentMargins(.horizontal,0,for:.scrollContent)
                 HStack(spacing:10) {
@@ -1008,23 +1025,26 @@ struct MacPadView:View {
                     VStack(alignment:.leading,spacing:3) {Text("MacPad").font(.system(size:12,weight:.semibold));Text("V\(version)").font(.system(size:11)).foregroundStyle(.secondary)}
                     Spacer()
                 }.padding(.horizontal,16).padding(.vertical,14)
-            }.background(SidebarMaterial().ignoresSafeArea())
-                .frame(minWidth:210,idealWidth:220,maxWidth:240)
-        VStack(alignment:.leading,spacing:0) {
-                HStack {
-                    Text(title).font(.system(size:17,weight:.semibold))
-                    Spacer()
-                    Button("刷新"){model.refresh(discover:true,hardware:true,forceDiscovery:true);model.tick()}
-                    if model.hasIPadScreen {Button("断开"){model.disconnect()}.disabled(model.busy)}
-                    else {Button(model.busy ? "连接中…" : "连接"){model.connect()}.buttonStyle(.borderedProminent).disabled(model.busy || model.selection.isEmpty)}
-                }.controlSize(.regular).padding(.horizontal,24).padding(.top,24).padding(.bottom,12)
+            }.navigationSplitViewColumnWidth(min:210,ideal:220,max:240)
+        } detail: {
+            VStack(alignment:.leading,spacing:0) {
                 switch pane ?? .display {
                 case .display:displaySettings
                 case .automation:automationSettings
                 case .activity:activitySettings
                 }
+                HStack(spacing:10) {
+                    Spacer()
+                    Button("刷新"){model.refresh(discover:true,hardware:true,forceDiscovery:true);model.tick()}
+                    if model.hasIPadScreen {Button("断开"){model.disconnect()}.disabled(model.busy)}
+                    else {Button(model.busy ? "连接中…" : "连接"){model.connect()}.disabled(model.busy || model.selection.isEmpty)}
+                }.buttonStyle(.bordered).controlSize(.regular).padding(.horizontal,20).padding(.vertical,14)
             }.frame(minWidth:520,maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading)
-        }.frame(minWidth:760,minHeight:440).background(Color(nsColor:.windowBackgroundColor))
+                .navigationTitle(title)
+                .toolbar {
+                    ToolbarItem(placement:.navigation) {Text(title).font(.system(size:17,weight:.semibold))}
+                }
+        }.navigationSplitViewStyle(.balanced).toolbar(removing:.sidebarToggle).frame(minWidth:760,minHeight:440).background(Color(nsColor:.windowBackgroundColor))
             .sheet(isPresented:$showCustomResolution) {customResolutionSheet}
     }
     private func sidebarIcon(_ name:String,color:Color)->some View {
@@ -1138,7 +1158,13 @@ struct MacPadView:View {
             } footer: {Text("无线连接需要两端开启 Wi-Fi、蓝牙和接力，登录同一 Apple 账户并保持在附近。点击“断开”会暂停连接；想切无线时直接拔线。")}
             Section {
                 ShortcutSettings(shortcut:model.shortcut)
-            } footer: {Text("按快捷键搜索并连接 iPad；手动断开后保持暂停，直到再次连接。")}
+            } footer: {
+                HStack(alignment:.top,spacing:12) {
+                    Text("按快捷键搜索并连接 iPad。点按键值修改；未输入会保留原设定。")
+                    Spacer(minLength:8)
+                    Button("恢复默认") {model.shortcut.reset()}.buttonStyle(.bordered).controlSize(.small)
+                }
+            }
             Section {
                 Toggle("登录 Mac 后启动",isOn:Binding(get:{model.loginEnabled},set:model.setLogin))
             } footer: {Text("开机密码仍由你输入。登录后，MacPad 在菜单栏运行。")}
@@ -1232,8 +1258,8 @@ struct ShortcutSettings: View {
         let size=NSSize(width:max(760,min(860,visible.width-48)),height:max(440,min(600,visible.height-56)))
         window=NSWindow(contentRect:NSRect(origin:.zero,size:size),styleMask:[.titled,.closable,.miniaturizable,.resizable,.fullSizeContentView],backing:.buffered,defer:false)
         window.contentMinSize=NSSize(width:760,height:440)
-        window.titlebarAppearsTransparent=true;window.titleVisibility = .hidden;window.toolbarStyle = .unified;window.delegate=self
-        window.title="MacPad";window.contentView=NSHostingView(rootView:MacPadView(model:model));window.center();window.isReleasedWhenClosed=false
+        window.titlebarAppearsTransparent=true;window.titleVisibility = .hidden;window.toolbarStyle = .unified;window.titlebarSeparatorStyle = .none;window.delegate=self
+        window.identifier=NSUserInterfaceItemIdentifier("MacPad.control");window.title="MacPad";window.contentViewController=NSHostingController(rootView:MacPadView(model:model));window.center();window.isReleasedWhenClosed=false
         // Prefer the visible Sidecar screen over an offscreen virtual desktop.
         if let screen=NSScreen.screens.first(where:{$0.localizedName.localizedCaseInsensitiveContains("sidecar")}) {
             let frame=screen.visibleFrame
@@ -1244,7 +1270,7 @@ struct ShortcutSettings: View {
     }
     func windowWillClose(_ notification:Notification) {
         // Discard the hosting tree while keeping the display owner and menu alive.
-        window?.contentView=nil;window=nil
+        window?.contentViewController=nil;window=nil
         DispatchQueue.main.async { [weak self] in self?.model.writeDiagnostics(force:true) }
     }
     func applicationShouldHandleReopen(_ sender:NSApplication,hasVisibleWindows flag:Bool)->Bool {show();return false}

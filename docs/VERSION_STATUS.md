@@ -5,9 +5,11 @@
 [Download V1.3.2](https://github.com/Chihao-Sun/MacPad/releases/tag/V1.3.2) · [Setup guide](GETTING_STARTED.md) · [Home](../README.md)
 
 
-V1.4.0 / build 46 adds a global connect shortcut (default ⌃⌥⌘L), editable in Automatic connection, with inline registration/system-conflict feedback. Manual disconnect now remains paused across USB changes, system wake and MacPad restart. Diagnostics also provide independent per-process status during upgrades. Sidebar row/icon spacing follows the supplied macOS System Settings reference.
+V1.4.0 / build 53 adds a global connect shortcut (default ⌃⌥⌘L), editable in Automatic connection, with inline registration/system-conflict feedback. Manual disconnect now remains paused across USB changes, system wake and MacPad restart. Diagnostics also provide independent per-process status during upgrades. Sidebar row/icon spacing follows the supplied macOS System Settings reference.
 
 The current source is V1.4.0; the downloadable release remains V1.3.2. Policy, shortcut-registration and build checks passed. Live shortcut reconnect and custom recording were verified on the development Mac. Physical sleep/wake, cable reinsertion while paused and new-device installation are not claimed as completed tests.
+
+The settings window now uses native split navigation and toolbar chrome. The sidebar remains visible, with no collapse button; Refresh and Connect/Disconnect sit at the lower right. Click the shortcut value to edit it. Restore Default is visible below the row. Escape, clicking elsewhere, leaving the window or five seconds without input restores the previous shortcut.
 
 ## Previous baseline
 
