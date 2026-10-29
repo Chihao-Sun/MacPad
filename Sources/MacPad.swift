@@ -30,16 +30,10 @@ struct DisplaySnapshot {
     }
 }
 
-struct ResolutionChoice:Identifiable,Equatable {
-    let width:Int
-    let height:Int
-    var pixelWidth:Int {width*2}
-    var pixelHeight:Int {height*2}
-    var id:String {"\(width)x\(height)@\(pixelWidth)x\(pixelHeight)"}
-    var title:String {"\(width) × \(height) · 高清 · " + (width==1344 ? "默认大小" : (width<1344 ? "较大文字" : "更多空间"))}
-    static let retina:[ResolutionChoice]=[(1194,834),(1280,894),(1344,938),(1600,1118),(2388,1668)].map{ResolutionChoice(width:$0.0,height:$0.1)}
+extension ResolutionChoice {
     static func matching(_ mode:CGDisplayMode)->ResolutionChoice? {
-        retina.first{$0.width==mode.width && $0.height==mode.height && $0.pixelWidth==mode.pixelWidth && $0.pixelHeight==mode.pixelHeight}
+        guard ResolutionPolicy.safe(width:mode.width,height:mode.height),mode.pixelWidth==mode.width*2,mode.pixelHeight==mode.height*2 else{return nil}
+        return ResolutionChoice(width:mode.width,height:mode.height)
     }
 }
 
@@ -72,6 +66,12 @@ struct ConnectionEvent:Identifiable {
     }
     @Published var resolutionChoices:[ResolutionChoice]=[]
     @Published var selectedResolution=""
+    @Published private(set) var nativePanel:PanelGeometry?
+    @Published private(set) var panelSource="unknown"
+    private var panelReadDisplay:UInt32=0
+    private var panelReadDevice=""
+    private var panelRetryAfter=Date.distantPast
+    private var pendingPanelResolution:ResolutionChoice?
     private var resolutionDisplay:UInt32=0
     @Published var autoConnect=UserDefaults.standard.bool(forKey:"autoConnect") {
         didSet {UserDefaults.standard.set(autoConnect,forKey:"autoConnect"); paused=false;attempts=0;nextAttempt = .distantPast;if autoConnect {scheduleTick(after:0.1)}}
@@ -165,6 +165,7 @@ struct ConnectionEvent:Identifiable {
         pendingTick=work;DispatchQueue.main.asyncAfter(deadline:.now()+max(delay,0.1),execute:work)
     }
     func environmentChanged(discover:Bool) {
+        panelReadDisplay=0
         pendingEnvironment?.cancel()
         let work=DispatchWorkItem { [weak self] in
             Task { @MainActor in
@@ -215,11 +216,14 @@ struct ConnectionEvent:Identifiable {
         if previousUSB==0 && usbCount>0 {attempts=0;paused=false;nextAttempt = .distantPast;log("检测到 USB iPad")}
         if previousUSB>0 && usbCount==0 {log("USB 数据线已拔出");nextAttempt = .distantPast}
         snapshot=DisplaySnapshot.read()
+        if snapshot.ipad,(MPBridge.connectionInfo(forName:selection)["connected"] as? NSNumber)?.boolValue != true,
+           let active=names.first(where:{(MPBridge.connectionInfo(forName:$0)["connected"] as? NSNumber)?.boolValue == true}) {selection=active}
         let wasConnected=hasIPadScreen
         if hasIPadScreen != snapshot.ipad {hasIPadScreen=snapshot.ipad}
         if otherDisplays != snapshot.others {otherDisplays=snapshot.others}
         let owned=MPBridge.virtualDisplayID();if virtualID != owned {virtualID=owned}
         let ipad=snapshot.rows.first(where:{$0["kind"] as? String == "sidecar"})?["id"] as? UInt32 ?? 0
+        refreshPanel(ipad)
         let virtuals=snapshot.rows.filter{$0["kind"] as? String == "macpadVirtual"}.compactMap{$0["id"] as? UInt32}
         let mirror=ipad != 0 && virtualID != 0 && CGDisplayMirrorsDisplay(virtualID)==0 && CGDisplayMirrorsDisplay(ipad)==virtualID && virtuals.filter{$0 != virtualID}.allSatisfy{CGDisplayMirrorsDisplay($0)==virtualID}
         if mirrored != mirror {mirrored=mirror}
@@ -261,17 +265,99 @@ struct ConnectionEvent:Identifiable {
     func refreshResolutions(_ source:UInt32) {
         guard source != 0 else {resolutionDisplay=0;return}
         resolutionDisplay=source
-        if resolutionChoices.isEmpty {resolutionChoices=ResolutionChoice.retina}
+        if resolutionChoices.isEmpty {resolutionChoices=nativePanel.map(ResolutionPolicy.choices) ?? ResolutionPolicy.legacyChoices}
         guard !adjustingResolution,let mode=CGDisplayCopyDisplayMode(source),let actual=ResolutionChoice.matching(mode) else{return}
+        if !resolutionChoices.contains(actual) {
+            guard let panel=nativePanel,ResolutionPolicy.coversPanel(actual,panel:panel) else{return}
+            resolutionChoices.append(actual)
+        }
         if selectedResolution != actual.id {selectedResolution=actual.id}
+    }
+    var nativePanelDescription:String {
+        guard let panel=nativePanel else{return hasIPadScreen ? "未识别，使用兼容档位" : "连接后自动识别"}
+        return "\(panel.pixelWidth) × \(panel.pixelHeight) · " + (panelSource=="cached" ? "上次识别" : "系统识别")
+    }
+    var resolutionFootnote:String {
+        guard let panel=nativePanel else{return hasIPadScreen ? "尚未取得 iPad 原生像素，当前使用兼容档位，暂不能确认面板像素覆盖。" : "连接后会读取 iPad 的原生像素与比例，再生成适合这块屏幕的高清档位。"}
+        if let choice=resolutionChoices.first(where:{$0.id==selectedResolution}) {
+            return "iPad 原生像素 \(panel.pixelWidth) × \(panel.pixelHeight)。当前高清渲染 \(choice.pixelWidth) × \(choice.pixelHeight)，可按文字大小与桌面空间选择。"
+        }
+        return "显示大小已按这台 iPad 的屏幕比例生成，所有档位均使用高清渲染。"
+    }
+    private func refreshPanel(_ display:UInt32) {
+        let changedDevice=panelReadDevice != selection
+        if display==0 {
+            panelReadDisplay=0
+            if changedDevice {
+                panelReadDevice=selection
+                let saved=UserDefaults.standard.dictionary(forKey:"nativePanels")?[selection] as? [String:Int]
+                nativePanel=saved.flatMap{PanelGeometry(pixelWidth:$0["width"] ?? 0,pixelHeight:$0["height"] ?? 0)}
+                panelSource=nativePanel == nil ? "unknown" : "cached"
+                resolutionChoices=nativePanel.map(ResolutionPolicy.choices) ?? ResolutionPolicy.legacyChoices
+                pendingPanelResolution=nil
+            }
+            return
+        }
+        guard changedDevice || panelReadDisplay != display else{return}
+        guard changedDevice || Date()>=panelRetryAfter else{return}
+        let values=MPBridge.nativePanel(forDisplay:display)
+        guard let w=(values["width"] as? NSNumber)?.intValue,let h=(values["height"] as? NSNumber)?.intValue,
+              let geometry=PanelGeometry(pixelWidth:w,pixelHeight:h),!ResolutionPolicy.choices(for:geometry).isEmpty else {
+            panelRetryAfter=Date().addingTimeInterval(5);return
+        }
+        let changed=changedDevice || geometry != nativePanel || resolutionChoices.isEmpty
+        let cached=UserDefaults.standard.dictionary(forKey:"nativePanels")?[selection] as? [String:Int]
+        let cachedGeometry=cached.flatMap{PanelGeometry(pixelWidth:$0["width"] ?? 0,pixelHeight:$0["height"] ?? 0)}
+        panelReadDisplay=display;panelReadDevice=selection;panelRetryAfter = .distantPast
+        nativePanel=geometry;panelSource=values["source"] as? String ?? "native-mode"
+        if !selection.isEmpty {
+            var cache=UserDefaults.standard.dictionary(forKey:"nativePanels") ?? [:]
+            let item=["width":w,"height":h]
+            if cache[selection] as? [String:Int] != item {cache[selection]=item;UserDefaults.standard.set(cache,forKey:"nativePanels")}
+        }
+        guard changed else{return}
+        resolutionChoices=ResolutionPolicy.choices(for:geometry)
+        let samePanel=cachedGeometry == nil || cachedGeometry == geometry
+        let saved=(samePanel ? UserDefaults.standard.dictionary(forKey:"displaySizesByDevice")?[selection] as? String : nil)
+            ?? (!UserDefaults.standard.bool(forKey:"resolutionProfileMigrationCompleted") && geometry == .legacy ? UserDefaults.standard.string(forKey:"displaySize") : nil)
+        let preferred=saved.flatMap(ResolutionPolicy.parse).flatMap{ResolutionPolicy.coversPanel($0,panel:geometry) ? $0 : nil}
+            ?? ResolutionPolicy.recommended(for:geometry)
+        if let preferred {
+            if !resolutionChoices.contains(preferred){resolutionChoices.append(preferred)}
+            pendingPanelResolution=preferred
+            resolutionMessage="正在按 iPad 屏幕适配…";scheduleTick(after:0.15)
+        }
+        log("已识别 iPad 原生像素：\(w) × \(h)，高清档位 \(resolutionChoices.count) 个")
+    }
+    private func rememberResolution(_ choice:ResolutionChoice) {
+        selectedResolution=choice.id;UserDefaults.standard.set(choice.id,forKey:"displaySize")
+        if nativePanel != nil {UserDefaults.standard.set(true,forKey:"resolutionProfileMigrationCompleted")}
+        if !selection.isEmpty {
+            var sizes=UserDefaults.standard.dictionary(forKey:"displaySizesByDevice") ?? [:]
+            if sizes[selection] as? String != choice.id {sizes[selection]=choice.id;UserDefaults.standard.set(sizes,forKey:"displaySizesByDevice")}
+        }
+    }
+    func customResolution(width:String,height:String)->String? {
+        guard hasIPadScreen,!busy,!adjustingResolution,!switchingTransport else{return "请等待 iPad 连接稳定后再调整显示大小。"}
+        guard let w=Int(width),let h=Int(height) else{return "请输入整数宽度和高度。"}
+        if let error=ResolutionPolicy.validationMessage(width:w,height:h,panel:nativePanel){return error}
+        let choice=ResolutionChoice(width:w,height:h)
+        if !resolutionChoices.contains(choice){resolutionChoices.append(choice)}
+        pendingPanelResolution=nil;applyResolution(choice);return nil
     }
     func setResolution(_ id:String) {
         guard !adjustingResolution,let choice=resolutionChoices.first(where:{$0.id==id}) else{return}
+        pendingPanelResolution=nil
         applyResolution(choice)
     }
     private func applyResolution(_ choice:ResolutionChoice) {
         guard resolutionDisplay != 0 else{return}
-        if let mode=CGDisplayCopyDisplayMode(virtualID),ResolutionChoice.matching(mode)==choice {return}
+        if let mode=CGDisplayCopyDisplayMode(virtualID),ResolutionChoice.matching(mode)==choice {
+            refresh()
+            if mirrored {rememberResolution(choice);resolutionMessage=""}
+            else {pendingPanelResolution=choice;scheduleTick(after:max(0.5,nextMirrorAttempt.timeIntervalSinceNow))}
+            return
+        }
         adjustingResolution=true;resolutionMessage="正在调整显示大小…"
         let request=UUID();resolutionRequest=request;pendingResolution=choice
         do {
@@ -285,7 +371,7 @@ struct ConnectionEvent:Identifiable {
         guard request==resolutionRequest else{return}
         refresh();maintainMirroring();refresh()
         if let actual=CGDisplayCopyDisplayMode(virtualID),ResolutionChoice.matching(actual)==choice,mirrored {
-            selectedResolution=choice.id;UserDefaults.standard.set(choice.id,forKey:"displaySize")
+            rememberResolution(choice)
             adjustingResolution=false;pendingResolution=nil;resolutionMessage=""
             MPBridge.releasePreviousVirtuals()
             log("高清显示大小：\(choice.title)，渲染 \(choice.pixelWidth)×\(choice.pixelHeight)")
@@ -313,6 +399,9 @@ struct ConnectionEvent:Identifiable {
         defer {writeDiagnostics()}
         if hasIPadScreen {
             maintainMirroring()
+            if !adjustingResolution,!switchingTransport,virtualID != 0,let choice=pendingPanelResolution {
+                pendingPanelResolution=nil;applyResolution(choice)
+            }
             let ipad=snapshot.rows.first(where:{$0["kind"] as? String == "sidecar"})?["id"] as? UInt32 ?? 0
             if !adjustingResolution,ipad != 0 && virtualID != 0 && CGDisplayMirrorsDisplay(ipad)==virtualID,
                let mode=CGDisplayCopyDisplayMode(virtualID),ResolutionChoice.matching(mode) != nil {
@@ -618,6 +707,7 @@ struct ConnectionEvent:Identifiable {
         if let duration=lastRecoveryDuration {record["lastRecoveryDurationMs"]=Int(duration*1000)}
         if let render {record["renderMode"]=["width":render.width,"height":render.height,"pixelWidth":render.pixelWidth,"pixelHeight":render.pixelHeight,"is2x":render.pixelWidth>=render.width*2 && render.pixelHeight>=render.height*2]}
         record["availableHDModes"]=resolutionChoices.map{["id":$0.id,"width":$0.width,"height":$0.height,"pixelWidth":$0.pixelWidth,"pixelHeight":$0.pixelHeight]}
+        if let panel=nativePanel {record["nativePanel"]=["width":panel.pixelWidth,"height":panel.pixelHeight,"source":panelSource]}
         guard let signature=try? JSONSerialization.data(withJSONObject:record,options:[.sortedKeys]),force || signature != lastDiagnosticSignature else{return}
         lastDiagnosticSignature=signature
         record["checked"]=ISO8601DateFormatter().string(from:Date())
@@ -709,6 +799,11 @@ struct SidebarMaterial:NSViewRepresentable {
 struct MacPadView:View {
     @ObservedObject var model:MacPadModel
     @State private var pane:MacPadPane? = .display
+    @State private var showCustomResolution=false
+    @State private var customWidth=""
+    @State private var customHeight=""
+    @State private var keepPanelRatio=true
+    @State private var customError=""
     private var version:String {Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "1.0.0"}
     private var deviceName:String {model.selection.isEmpty ? "iPad 显示器" : model.selection}
     private var connectionText:String {model.switchingTransport ? "正在切换" : (model.hasIPadScreen ? "已连接" : (model.busy ? "正在连接" : "未连接"))}
@@ -755,6 +850,7 @@ struct MacPadView:View {
                 }
             }.frame(minWidth:520,maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading)
         }.frame(minWidth:760,minHeight:440).background(Color(nsColor:.windowBackgroundColor))
+            .sheet(isPresented:$showCustomResolution) {customResolutionSheet}
     }
     private func sidebarIcon(_ name:String,color:Color)->some View {
         Image(systemName:name).font(.system(size:13,weight:.medium)).foregroundStyle(.white)
@@ -794,20 +890,56 @@ struct MacPadView:View {
                     Picker("连接到",selection:$model.selection) {
                         Text("请选择 iPad").tag("")
                         ForEach(model.names,id:\.self){Text($0).tag($0)}
-                    }.labelsHidden().fixedSize().frame(maxWidth:.infinity,alignment:.trailing)
+                    }.labelsHidden().fixedSize().frame(maxWidth:.infinity,alignment:.trailing).disabled(model.hasIPadScreen || model.busy)
                 }
                 if model.hasIPadScreen && !model.resolutionChoices.isEmpty {
+                    LabeledContent("iPad 屏幕") {Text(model.nativePanelDescription).foregroundStyle(.secondary)}
                     HStack(spacing:16) {
                         Text("显示大小")
                         Spacer(minLength:16)
-                        Picker("显示大小",selection:Binding(get:{model.selectedResolution},set:model.setResolution)) {
+                        Picker("显示大小",selection:Binding(get:{model.selectedResolution},set:{value in
+                            if value=="custom" {
+                                let choice=model.resolutionChoices.first{$0.id==model.selectedResolution}
+                                customWidth=String(choice?.width ?? model.nativePanel?.logicalWidth ?? 1344)
+                                customHeight=String(choice?.height ?? model.nativePanel?.logicalHeight ?? 938)
+                                keepPanelRatio=true;customError="";showCustomResolution=true
+                            } else {model.setResolution(value)}
+                        })) {
                             ForEach(model.resolutionChoices){Text($0.title).tag($0.id)}
-                        }.labelsHidden().fixedSize().frame(maxWidth:.infinity,alignment:.trailing).disabled(model.adjustingResolution)
+                            if model.nativePanel != nil {Divider();Text("自定义…").tag("custom")}
+                        }.labelsHidden().fixedSize().frame(maxWidth:.infinity,alignment:.trailing).disabled(model.adjustingResolution || model.switchingTransport || model.busy)
                     }
                     if !model.resolutionMessage.isEmpty {Text(model.resolutionMessage).font(.system(size:12)).foregroundStyle(.secondary)}
                 }
-            } footer: {Text("默认 1344 × 938 使用 2688 × 1876 像素高清渲染。1194 × 834 按面板原生像素渲染。")}
+            } footer: {Text(model.resolutionFootnote)}
         }.formStyle(.grouped).font(.system(size:13))
+    }
+    private var customResolutionSheet:some View {
+        VStack(alignment:.leading,spacing:16) {
+            Text("自定义显示大小").font(.headline)
+            Text("设置桌面空间；MacPad 会使用高清渲染。\(model.nativePanelDescription)。").font(.system(size:12)).foregroundStyle(.secondary)
+            HStack {
+                Text("桌面宽度")
+                TextField("宽度",text:$customWidth).frame(width:90).onChange(of:customWidth){_,value in
+                    if keepPanelRatio,let width=Int(value),(320...4096).contains(width),let panel=model.nativePanel {customHeight=String(panel.height(forWidth:width))}
+                }
+                Text("高度")
+                TextField("高度",text:$customHeight).frame(width:90).disabled(keepPanelRatio)
+            }
+            Toggle("保持 iPad 屏幕比例",isOn:$keepPanelRatio).onChange(of:keepPanelRatio){_,enabled in
+                if enabled,let width=Int(customWidth),(320...4096).contains(width),let panel=model.nativePanel {customHeight=String(panel.height(forWidth:width))}
+            }
+            if !keepPanelRatio {Text("与 iPad 比例不同时，画面可能出现黑边。").font(.system(size:12)).foregroundStyle(.secondary)}
+            if !customError.isEmpty {Text(customError).font(.system(size:12)).foregroundStyle(.red)}
+            HStack {
+                Spacer()
+                Button("取消"){showCustomResolution=false}.keyboardShortcut(.cancelAction)
+                Button("应用") {
+                    if let error=model.customResolution(width:customWidth,height:customHeight){customError=error}
+                    else {showCustomResolution=false}
+                }.keyboardShortcut(.defaultAction)
+            }
+        }.padding(24).frame(width:430)
     }
     private var automationSettings:some View {
         Form {
@@ -947,8 +1079,7 @@ struct MacPadView:View {
         let arguments=CommandLine.arguments
         if let index=arguments.firstIndex(of:"--desktop-size"),index+1<arguments.count {
             let value=arguments[index+1]
-            let allowed:Set<String>=["1194x834","1280x894","1344x938","1600x1118","2388x1668"]
-            if allowed.contains(value) {UserDefaults.standard.set(value,forKey:"displaySize")}
+            if let choice=ResolutionPolicy.parse(value) {UserDefaults.standard.set(choice.id,forKey:"displaySize")}
         }
         let app=NSApplication.shared, delegate=AppDelegate();app.delegate=delegate;app.setActivationPolicy(.accessory);app.run();withExtendedLifetime(delegate){}
     }

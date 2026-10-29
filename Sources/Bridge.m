@@ -1,8 +1,10 @@
 #import "Bridge.h"
 #import <CoreGraphics/CoreGraphics.h>
 #import <IOKit/IOKitLib.h>
+#import <IOKit/graphics/IOGraphicsTypes.h>
 #import <dlfcn.h>
 #import <objc/message.h>
+#import <math.h>
 
 // Independently authored compatibility bridge. All private classes/selectors are
 // checked at runtime because Apple can change these interfaces between releases.
@@ -65,6 +67,9 @@ static NSError *Failure(NSString *text) {
     return [NSError errorWithDomain:MPErrorDomain code:1 userInfo:@{NSLocalizedDescriptionKey:text}];
 }
 static id MakeVirtual(NSUInteger width,NSUInteger height,NSError **error) {
+    if(width<640 || height<640 || width>8192 || height>8192 || width%2 || height%2 || width*height>33554432) {
+        if(error)*error=Failure(@"高清画布尺寸超出可用范围。");return nil;
+    }
     @try {
         Class dc=NSClassFromString(@"CGVirtualDisplayDescriptor"),sc=NSClassFromString(@"CGVirtualDisplay");
         Class mc=NSClassFromString(@"CGVirtualDisplayMode"),tc=NSClassFromString(@"CGVirtualDisplaySettings");
@@ -123,6 +128,39 @@ static id MakeVirtual(NSUInteger width,NSUInteger height,NSError **error) {
     NSDictionary *info=CFBridgingRelease(ref);
     id value=info[@"kCGDisplayIsVirtualDevice"];
     return [value isKindOfClass:NSNumber.class] ? @{@"virtual":value} : @{};
+}
++ (NSDictionary *)nativePanelForDisplay:(uint32_t)displayID {
+    if(!displayID || CGDisplayVendorNumber(displayID)!=0x6161706c || CGDisplayModelNumber(displayID)!=0x69506164)return @{};
+    NSUInteger width=0,height=0;NSString *source=@"";
+    CFArrayRef modes=CGDisplayCopyAllDisplayModes(displayID,(__bridge CFDictionaryRef)@{(__bridge NSString*)kCGDisplayShowDuplicateLowResolutionModes:@YES});
+    if(modes) {
+        for(id object in (__bridge NSArray*)modes) {
+            CGDisplayModeRef mode=(__bridge CGDisplayModeRef)object;
+            if(!(CGDisplayModeGetIOFlags(mode)&kDisplayModeNativeFlag))continue;
+            NSUInteger w=CGDisplayModeGetPixelWidth(mode),h=CGDisplayModeGetPixelHeight(mode);
+            if(w>=640 && h>=640 && w<=8192 && h<=8192 && w*h>width*height){width=w;height=h;}
+        }
+        CFRelease(modes);
+        if(width && height)source=@"native-mode";
+    }
+    // Mirroring may add an oversized transport mode. Only the native flag,
+    // or the display's own physical-pixel information, describes its panel.
+    if(!width || !height) {
+        if(!coreDisplayHandle)coreDisplayHandle=dlopen("/System/Library/Frameworks/CoreDisplay.framework/CoreDisplay",RTLD_LAZY|RTLD_LOCAL);
+        CFDictionaryRef(*copyInfo)(uint32_t)=coreDisplayHandle?dlsym(coreDisplayHandle,"CoreDisplay_DisplayCreateInfoDictionary"):NULL;
+        CFDictionaryRef ref=copyInfo?copyInfo(displayID):NULL;
+        if(ref) {
+            NSDictionary *info=CFBridgingRelease(ref);id w=info[@"kCGDisplayPixelWidth"],h=info[@"kCGDisplayPixelHeight"];
+            if([w isKindOfClass:NSNumber.class] && [h isKindOfClass:NSNumber.class]) {
+                NSUInteger x=[w unsignedIntegerValue],y=[h unsignedIntegerValue];
+                if(x>=640 && y>=640 && x<=8192 && y<=8192){width=x;height=y;source=@"display-info";}
+            }
+        }
+    }
+    if(!width || !height)return @{};
+    NSInteger rotation=((NSInteger)llround(CGDisplayRotation(displayID))%360+360)%360;
+    if(rotation==90 || rotation==270){NSUInteger swap=width;width=height;height=swap;}
+    return @{@"width":@(width),@"height":@(height),@"source":source};
 }
 + (NSDictionary *)capabilities {
     @try {
@@ -209,10 +247,16 @@ static id MakeVirtual(NSUInteger width,NSUInteger height,NSError **error) {
     if(virtualScreen)return YES;
     NSString *saved=[[NSUserDefaults standardUserDefaults] stringForKey:@"displaySize"]?:@"1344x938";
     NSString *logical=[[saved componentsSeparatedByString:@"@"] firstObject];
-    NSSet *allowed=[NSSet setWithArray:@[@"1194x834",@"1280x894",@"1344x938",@"1600x1118",@"2388x1668"]];
-    if(![allowed containsObject:logical])logical=@"1344x938";
     NSArray *parts=[logical componentsSeparatedByString:@"x"];
-    NSUInteger width=[parts[0] integerValue]*2,height=[parts[1] integerValue]*2;
+    NSInteger w=0,h=0;
+    if(parts.count==2) {
+        NSCharacterSet *nonDigits=[[NSCharacterSet characterSetWithCharactersInString:@"0123456789"] invertedSet];
+        if([parts[0] length] && [parts[1] length] && [parts[0] rangeOfCharacterFromSet:nonDigits].location==NSNotFound && [parts[1] rangeOfCharacterFromSet:nonDigits].location==NSNotFound) {
+            w=[parts[0] longLongValue];h=[parts[1] longLongValue];
+        }
+    }
+    if(w<320 || h<320 || w>4096 || h>4096 || w*h*4>33554432){w=1344;h=938;}
+    NSUInteger width=w*2,height=h*2;
     id screen=MakeVirtual(width,height,error);if(!screen)return NO;
     virtualScreen=screen;preferredPixelWidth=width;preferredPixelHeight=height;return YES;
 }

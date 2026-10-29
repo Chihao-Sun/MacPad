@@ -5,6 +5,8 @@ cd "$root"
 mkdir -p .build
 xcrun swiftc Sources/ConnectionPolicy.swift Tests/ConnectionPolicyTests.swift -o .build/ConnectionPolicyTests
 .build/ConnectionPolicyTests
+xcrun swiftc Sources/ResolutionPolicy.swift Tests/ResolutionPolicyTests.swift -o .build/ResolutionPolicyTests
+.build/ResolutionPolicyTests
 /usr/bin/python3 - <<'PY'
 from pathlib import Path
 s=Path('Sources/MacPad.swift').read_text();a=s.index('enum MacPadArtwork');b=s.index('struct MacPadMark:View',a)

@@ -9,6 +9,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)startUSBMonitoring:(void (^)(void))handler;
 + (void)stopUSBMonitoring;
 + (NSDictionary *)displayTraits:(uint32_t)displayID;
++ (NSDictionary *)nativePanelForDisplay:(uint32_t)displayID NS_SWIFT_NAME(nativePanel(forDisplay:));
 + (void)connectName:(NSString *)name transport:(NSInteger)transport completion:(void (^)(NSString * _Nullable))completion;
 + (void)disconnectName:(NSString *)name completion:(void (^)(NSString * _Nullable))completion;
 + (BOOL)createVirtual:(NSError * _Nullable * _Nullable)error;
