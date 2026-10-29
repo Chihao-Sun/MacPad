@@ -14,6 +14,7 @@ static NSUInteger preferredPixelWidth,preferredPixelHeight;
 static void *sidecarHandle;
 static void *coreDisplayHandle;
 static NSMutableDictionary<NSString *,id> *knownDevices;
+static NSSet<NSString *> *discoveredDeviceNames;
 static IONotificationPortRef usbPort;
 static io_iterator_t usbAdded,usbRemoved;
 static void (^usbChanged)(void);
@@ -36,6 +37,7 @@ static id Manager(void) {
 static NSArray *Devices(void) {
     NSMutableArray *result=[NSMutableArray array];
     NSMutableSet *names=[NSMutableSet set];
+    NSMutableSet *discovered=[NSMutableSet set];
     // At login active discovery may be empty while a paired, recent device
     // already exists. Reuse only actual SidecarDevice objects from the system.
     for(NSString *selector in @[@"devices",@"recentDevices"]) {
@@ -44,12 +46,14 @@ static NSArray *Devices(void) {
         for(id device in value) {
             if(![device isKindOfClass:NSClassFromString(@"SidecarDevice")])continue;
             id name=Send0(device,@"name");
+            if([selector isEqualToString:@"devices"] && [name isKindOfClass:NSString.class])[discovered addObject:name];
             if(![name isKindOfClass:NSString.class] || [names containsObject:name])continue;
             [names addObject:name];[result addObject:device];
             if(!knownDevices)knownDevices=[NSMutableDictionary dictionary];
             knownDevices[name]=device;
         }
     }
+    discoveredDeviceNames=[discovered copy];
     return result;
 }
 static NSString *Name(id device) {
@@ -175,7 +179,7 @@ static id MakeVirtual(NSUInteger width,NSUInteger height,NSError **error) {
 + (NSArray<NSDictionary *> *)devices {
     @try {
         NSMutableArray *r=[NSMutableArray array];
-        for(id d in Devices()) [r addObject:@{@"name":Name(d)}];
+        for(id d in Devices()) [r addObject:@{@"name":Name(d),@"discovered":@([discoveredDeviceNames containsObject:Name(d)])}];
         return r;
     } @catch(NSException *e) {return @[];}
 }

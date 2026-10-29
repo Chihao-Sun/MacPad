@@ -1,32 +1,32 @@
-name: 连接或显示问题
-description: 报告可复现的问题，请勿上传私密日志或凭据。
+name: Bug report / 问题反馈
+description: Report a reproducible issue. Remove private logs and credentials. / 请移除私密日志和凭据。
 body:
   - type: input
     id: version
     attributes:
-      label: MacPad 版本
+      label: MacPad version / 版本
     validations:
       required: true
   - type: textarea
     id: devices
     attributes:
-      label: 设备与系统
-      description: Mac/iPad 型号及 macOS/iPadOS 版本，不填写序列号或账户信息。
+      label: Devices and OS versions / 设备与系统
+      description: Models and OS versions only, no serial numbers or account information. / 不填序列号或账户信息。
     validations:
       required: true
   - type: dropdown
     id: transport
     attributes:
-      label: 发生问题时的连接方式
+      label: Connection at the time of failure / 出错时的连接方式
       options:
-        - USB-C 有线
-        - 无线
-        - 拔线或插线切换中
-        - 尚未连接
+        - USB-C wired / 有线
+        - Wireless / 无线
+        - Switching / 切换中
+        - Not connected / 尚未连接
   - type: textarea
     id: reproduction
     attributes:
-      label: 复现步骤与观察
-      description: 是否已登录 Mac、有无实体屏、是否主动断开、手动连接能否恢复；分享日志前请删去个人设备名称和路径。
+      label: Steps and observations / 复现步骤与观察
+      description: Include login state, physical monitor, deliberate disconnect, manual recovery and repeated dialogs. Redact device names and paths. / 请说明登录状态、实体屏、主动断开、手动恢复和重复弹窗，并移除设备名称与路径。
     validations:
       required: true

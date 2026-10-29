@@ -62,5 +62,30 @@ import Foundation
         assert(ConnectionPolicy.retryDelay(attempt:6,rapidRecovery:true)==60)
         assert(ConnectionPolicy.retryDelay(attempt:1,timedOut:true,rapidRecovery:true)==2)
         print("PASS: 18 manual-choice, portable-auto, native-grace and bounded fast-recovery regressions")
+        // Simulate a native request whose callback arrives after our deadline.
+        // Thousands of reconciliation ticks must not issue another request.
+        var gate=ConnectionRequestGate();let first=UUID()
+        assert(gate.begin(first));gate.timedOut(first)
+        for _ in 0..<1000 {assert(!gate.begin(UUID()))}
+        gate.resume() // A real cable event must not forget an unfinished call.
+        assert(!gate.begin(UUID()))
+        assert(!gate.complete(UUID()) && gate.pending==first)
+        assert(gate.complete(first));let second=UUID();assert(gate.begin(second))
+        assert(!gate.complete(first) && gate.pending==second)
+        assert(gate.complete(second))
+        print("PASS: timeout, cable event and stale callback preserve single-flight ownership")
+        // Model repeated immediate native failures across a long idle period.
+        // A finite budget prevents an unbounded stack of system error alerts.
+        gate=ConnectionRequestGate();var calls=0
+        for _ in 0..<1000 {
+            let id=UUID()
+            if gate.begin(id) {calls+=1;gate.complete(id)}
+        }
+        assert(calls==3 && gate.suspended && gate.pending==nil)
+        gate.resume();assert(gate.begin(UUID()))
+        gate=ConnectionRequestGate()
+        for _ in 0..<3 {let id=UUID();assert(gate.begin(id));assert(gate.complete(id))}
+        gate.confirmHealthy();assert(gate.canStart && gate.attempts==0 && !gate.suspended)
+        print("PASS: 1000 idle ticks make at most 3 native calls; user/device/success recovery resets budget")
     }
 }

@@ -1,12 +1,12 @@
 {
-  "version": "1.3.0",
-  "build": 29,
+  "version": "1.3.1",
+  "build": 31,
   "license": "GPL-3.0-only",
   "files": [
     {
       "path": ".github/ISSUE_TEMPLATE/bug_report.yml",
-      "bytes": 940,
-      "sha256": "549b6c7f895d4238d925c02e88457f8438fcf9c4aeb82cbdedc434901197b1f0"
+      "bytes": 1239,
+      "sha256": "467602a493f0dd46f85ac632eaef8f16ddaa844791bf7c29a791c35624af83ef"
     },
     {
       "path": ".gitignore",
@@ -31,12 +31,17 @@
     {
       "path": "BUILD",
       "bytes": 3,
-      "sha256": "3840bc236ee03aacbb1ef7d5108ddfa347c59f10b68d4174affbb53140f31273"
+      "sha256": "32c2643e0dc65524c9f1f6f9f00937322fd68d59986bc381d9ff2285d23e353d"
     },
     {
       "path": "CONTRIBUTING.md",
-      "bytes": 1733,
-      "sha256": "9b93718ba07e94caef725008f3b1ab6de50090c7f5c61ef695e4aa455371484b"
+      "bytes": 1982,
+      "sha256": "904c6f7d751a8f58cd8793bdeec99f6d2b8cb3ff50a3bfe04ade9983b10d89c6"
+    },
+    {
+      "path": "CONTRIBUTING.zh-CN.md",
+      "bytes": 1780,
+      "sha256": "07656d5c53636cacb9d5f720535a4f3378978b0a3e0b4672f4f55dc9d18265fe"
     },
     {
       "path": "COPYRIGHT",
@@ -50,8 +55,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 7825,
-      "sha256": "bc0bb34707eb347b0127263e71c6d2cd57a1ff0cb987eff7d9c1a2ae10f825ff"
+      "bytes": 8996,
+      "sha256": "516e9f789deafc3358c02ba7f6742e25f88d6dc263c8daaeafe6859cecdc775f"
+    },
+    {
+      "path": "README.zh-CN.md",
+      "bytes": 8779,
+      "sha256": "ef8dc4b7a8af7c65dd1e87be6cf0d82a8be90e0d2de48063deb3d2126f78e233"
     },
     {
       "path": "Resources/MacPad.icns",
@@ -85,18 +95,18 @@
     },
     {
       "path": "Sources/Bridge.m",
-      "bytes": 16617,
-      "sha256": "8a52978a2fa6923b25c9467ff7f8e255bf47a259d325b9b8298c07e8a8aee957"
+      "bytes": 16945,
+      "sha256": "c20d66f8a7d8336f0cbe8ea0fffda8a513e6c503237821dcb245c7b64d8eeaaf"
     },
     {
       "path": "Sources/ConnectionPolicy.swift",
-      "bytes": 3771,
-      "sha256": "de69e3fe1e36ddd218d9621b936850b95b6a429dda0ef582e9225f8633269c38"
+      "bytes": 4738,
+      "sha256": "8b13ad125ecf19d5c7ec00d8b6c894fca709b5e24513297ec82c188fab067f72"
     },
     {
       "path": "Sources/MacPad.swift",
-      "bytes": 70561,
-      "sha256": "11e189911d32f3d11dd78c32937c9784478350cc8f1b1ff0986b41f2ae6fbfac"
+      "bytes": 72933,
+      "sha256": "8223490b967449ed8d4890596ab068b1e0d5a0f3ee6f055bc86019ed34d8d984"
     },
     {
       "path": "Sources/ResolutionPolicy.swift",
@@ -105,8 +115,8 @@
     },
     {
       "path": "Tests/ConnectionPolicyTests.swift",
-      "bytes": 4960,
-      "sha256": "4d19a057d97d478644f9cff3dc1e307bc84c178651481f7d7accf9d0c546880b"
+      "bytes": 6512,
+      "sha256": "71b361d05b8dc216a13d5010be52e8298c7d1564c1cc25ed64f5a88b497779aa"
     },
     {
       "path": "Tests/ResolutionPolicyTests.swift",
@@ -116,17 +126,27 @@
     {
       "path": "VERSION",
       "bytes": 6,
-      "sha256": "64d23f858ef51b0f996e4966d4e27c0371b437e2d2787890b1f7ad22d4ec5663"
+      "sha256": "10e2e117b01523891ca271a615ae36e9d5e52348fd7d642f66727602c1b8dcbe"
+    },
+    {
+      "path": "docs/GETTING_STARTED.md",
+      "bytes": 4935,
+      "sha256": "7d878503307dfa2d0ed4b7ba59d5da7a2f83cf76d6d3e3039a9f2fbc4bff9421"
+    },
+    {
+      "path": "docs/PRIVACY.md",
+      "bytes": 1646,
+      "sha256": "8483d16ba8c703e6485b262d8ed85be85329f8c816e410b9d7682919b4033f69"
     },
     {
       "path": "docs/隐私说明.md",
-      "bytes": 1506,
-      "sha256": "4050e9e39dc9d4fb593b79eca83e35a86869ef24b427f5a8d6a1f8a9366595cc"
+      "bytes": 1548,
+      "sha256": "f365aa6557c11ed28201fd158dddd2455dcd2c8b2c948aacb7755b552b354370"
     },
     {
       "path": "docs/首次配置.md",
-      "bytes": 4591,
-      "sha256": "b40cf062c0b28e8a865c197cb03c04432cfb511ec5f8c928d952bc9b5fc3553c"
+      "bytes": 5160,
+      "sha256": "d4d075052f5d7626ad53c7de1eaa9aa859cce737783add0d009b93900d9616df"
     },
     {
       "path": "scripts/build.sh",

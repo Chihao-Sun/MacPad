@@ -1,5 +1,31 @@
 import Foundation
 
+// A local deadline does not cancel Apple's asynchronous request. Retain its
+// token until its own callback, including after timeout or a cable change.
+struct ConnectionRequestGate {
+    static let maximumAttempts=3
+    private(set) var pending:UUID?
+    private(set) var attempts=0
+    private(set) var suspended=false
+    var canStart:Bool {pending==nil && !suspended && attempts<Self.maximumAttempts}
+    mutating func resume() {attempts=0;suspended=false}
+    mutating func begin(_ id:UUID)->Bool {
+        guard canStart else{return false}
+        pending=id;attempts+=1;return true
+    }
+    @discardableResult mutating func complete(_ id:UUID)->Bool {
+        guard pending==id else{return false}
+        pending=nil
+        if attempts>=Self.maximumAttempts {suspended=true}
+        return true
+    }
+    mutating func timedOut(_ id:UUID) {
+        guard pending==id else{return}
+        suspended=true
+    }
+    mutating func confirmHealthy() {resume()}
+}
+
 enum AutomaticConnectionAction:Equatable {
     case idle, externalDisplay, settle, discover, connect
     case wait(TimeInterval)

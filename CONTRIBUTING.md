@@ -1,21 +1,23 @@
-# 贡献指南
+# Contributing
 
-感谢改进 MacPad。提交代码前请阅读 GPL-3.0-only 许可，并确认你有权以该许可提供贡献。
+**English** | [简体中文](CONTRIBUTING.zh-CN.md)
 
-## 报告问题
+Contributions use GPL-3.0-only. Check that you have the right to submit your changes under that license.
 
-提供 MacPad 版本、Mac 与 iPad 型号、两端系统版本、连接方式、复现步骤和发生时间。请说明：是否已进入 macOS 桌面、有无实体显示器、此前是否点过“断开”、手动连接能否恢复。
+## Report a problem
 
-日志和截图可能包含设备名称与本地路径，分享前请检查并删去私密内容。不要提交账户密码、证书、令牌或完整个人诊断资料。
+Include the MacPad version, Mac and iPad models, both OS versions, connection method, reproduction steps, and time of failure. Say whether the Mac had reached its desktop, whether a physical monitor was attached, whether Disconnect had been selected, and whether manual connection recovered the picture.
 
-## 修改与验证
+Review logs and screenshots for personal device names and paths. Do not submit passwords, certificates, tokens, or unreviewed personal diagnostics.
 
-在 Apple Silicon Mac 上运行 `zsh scripts/test.sh`。构建使用 `zsh scripts/build.sh`，会递增内部 BUILD。不要将测试编译通过写为真实设备或冷启动通过。
+## Change and verify
 
-连接策略变化需要分别考虑自动有线优先、无线回退、临时手动选择、用户主动断开后的暂停，以及失败恢复。显示变化需验证真实模式和镜像状态；只有虚拟屏幕存在不等于 iPad 已连接。
+Run `zsh scripts/test.sh` on an Apple Silicon Mac. Build with `zsh scripts/build.sh`, which increments internal BUILD. Compilation and policy tests are separate from physical-device and cold-start acceptance.
 
-屏幕适配需覆盖不同原生像素、横竖比例、旧设置迁移与尺寸上限。原生标记模式和虚拟桌面附加模式是不同数据，不能用所有模式的最大值冒充面板尺寸。策略夹具通过与真实机型通过要分开记录。画面端到端延迟与拔插后恢复耗时也应分别测量。
+Connection changes must cover wired preference, wireless recovery, manual overrides, deliberate disconnect/pause, failure budgets, pending native requests, and stale callbacks. A local timeout does not cancel Apple's request. Check the real display mode and mirror relationship; the mere existence of a virtual display does not establish a connected iPad.
 
-不要在无备用显示器时退出用户当前唯一的显示所有者，也不要用强制断电测试程序。保持用户密码、FileVault 和系统网络配置不变。
+Panel adaptation needs tests for native pixels, portrait and landscape ratios, preference migration, and framebuffer limits. A native-flagged mode is different from an extra mirrored desktop mode. Do not call the largest listed mode the panel's native pixels. Distinguish geometry fixtures from real-device tests, and picture latency from unplug recovery time.
 
-提交说明写清问题、修改后的行为、验证设备和仍未测试的场景。不加入无许可来源的代码、二进制、字体或图片；第三方贡献须保留必须的版权及许可。
+Keep a spare monitor available before terminating the user's only display owner. Do not force power loss for a test. Preserve passwords, FileVault, and system network settings.
+
+Describe the concrete problem, resulting behaviour, tested devices, and remaining gaps. Include only code and assets you have permission to distribute, and retain required copyright and license notices.

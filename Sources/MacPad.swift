@@ -74,7 +74,7 @@ struct ConnectionEvent:Identifiable {
     private var pendingPanelResolution:ResolutionChoice?
     private var resolutionDisplay:UInt32=0
     @Published var autoConnect=UserDefaults.standard.bool(forKey:"autoConnect") {
-        didSet {UserDefaults.standard.set(autoConnect,forKey:"autoConnect"); paused=false;attempts=0;nextAttempt = .distantPast;if autoConnect {scheduleTick(after:0.1)}}
+        didSet {UserDefaults.standard.set(autoConnect,forKey:"autoConnect"); paused=false;attempts=0;requestGate.resume();nextAttempt = .distantPast;if autoConnect {scheduleTick(after:0.1)}}
     }
     @Published var loginEnabled=SMAppService.mainApp.status == .enabled
     @Published var logs:[String]=[]
@@ -108,6 +108,10 @@ struct ConnectionEvent:Identifiable {
     var launchContext="unknown"
     private var lastConnectionTrigger="none"
     private var requestID=UUID()
+    private var requestGate=ConnectionRequestGate()
+    private var discoveredNames=Set<String>()
+    private var newlyDiscovered=Set<String>()
+    private var healthySince:Date?
     private var paused=false
     private var nextAttempt=Date.distantPast
     private var headlessSince:Date?
@@ -147,7 +151,7 @@ struct ConnectionEvent:Identifiable {
         NSWorkspace.shared.notificationCenter.addObserver(forName:NSWorkspace.didWakeNotification,object:nil,queue:.main) { [weak self] _ in
             Task { @MainActor in
                 guard let self else{return}
-                self.sleeping=false;self.paused=false;self.attempts=0;self.headlessSince=nil;self.nextAttempt = .distantPast
+                self.sleeping=false;self.paused=false;self.attempts=0;self.requestGate.resume();self.headlessSince=nil;self.nextAttempt = .distantPast
                 self.transportChoice = .automatic;self.manualChoiceCablePresent=nil;self.manualFallback=nil
                 self.timer?.fireDate=Date().addingTimeInterval(30);self.environmentChanged(discover:true)
             }
@@ -198,7 +202,10 @@ struct ConnectionEvent:Identifiable {
     func refresh(discover:Bool=false,hardware:Bool=false,forceDiscovery:Bool=false) {
         if discover && (forceDiscovery || names.isEmpty || selection.isEmpty || (!hasIPadScreen && !rapidRecovery && Date().timeIntervalSince(lastDiscovery)>60)) {
             let began=Date()
-            let found=Array(Set(MPBridge.devices().compactMap{$0["name"] as? String})).sorted()
+            let devices=MPBridge.devices()
+            let found=Array(Set(devices.compactMap{$0["name"] as? String})).sorted()
+            let discovered=Set(devices.filter{($0["discovered"] as? NSNumber)?.boolValue == true}.compactMap{$0["name"] as? String})
+            newlyDiscovered=discovered.subtracting(discoveredNames);discoveredNames=discovered
             lastDiscovery=Date();lastDiscoveryDuration=Date().timeIntervalSince(began)
             if lastDiscoveryDuration>0.2 {log(String(format:"系统设备发现耗时 %.3f 秒",lastDiscoveryDuration))}
             if names != found && (!found.isEmpty || names.isEmpty || forceDiscovery) {names=found}
@@ -207,9 +214,14 @@ struct ConnectionEvent:Identifiable {
             let saved=UserDefaults.standard.string(forKey:"selectedDevice") ?? ""
             selection=names.contains(saved) ? saved : (names.count==1 ? names[0] : "")
         }
+        if newlyDiscovered.contains(selection) {
+            requestGate.resume();nextAttempt = .distantPast
+        }
+        newlyDiscovered.removeAll()
         let previousUSB=usbCount
         if hardware {let count=Int(MPBridge.usbIPadCount());if count != usbCount {usbCount=count}}
         if (previousUSB>0) != (usbCount>0) {
+            requestGate.resume();nextAttempt = .distantPast
             cableChangedAt=Date();nextTransportAttempt = .distantPast
             if (hasIPadScreen || resumeAfterMigration) && !paused && automaticTransport {beginRecovery("线缆变化")}
         }
@@ -234,6 +246,10 @@ struct ConnectionEvent:Identifiable {
             let info=MPBridge.connectionInfo(forName:selection)
             let transport=(info["configuredTransport"] as? NSNumber)?.intValue
             if configuredTransport != transport {configuredTransport=transport}
+            if mirror,(info["connected"] as? NSNumber)?.boolValue == true {
+                if healthySince==nil {healthySince=Date()}
+                if Date().timeIntervalSince(healthySince!)>=2 {requestGate.confirmHealthy()}
+            } else {healthySince=nil}
             if !wasConnected {log("系统已检测到 iPad 随航显示器")}
             if !switchingTransport {
                 if recoveryStarted==nil {if busy {busy=false};requestID=UUID();attempts=0;resumeAfterMigration=false}
@@ -247,6 +263,7 @@ struct ConnectionEvent:Identifiable {
             let description=otherDisplays.isEmpty ? "当前没有实体显示器，iPad 正在显示 Mac 桌面。" : "Mac 桌面已连接到 iPad。"
             if !switchingTransport && detail != description {detail=description}
         } else {
+            healthySince=nil
             configuredTransport=nil
             recoveryMatchedSince=nil
             // The disconnect callback can precede the display-offline event.
@@ -410,6 +427,12 @@ struct ConnectionEvent:Identifiable {
             reconcileTransport()
             confirmRecoveryIfReady()
         }
+        if !hasIPadScreen && requestGate.suspended && !busy {
+            status="等待 iPad 重新就绪"
+            detail=requestGate.pending == nil ? "连续连接未成功，已停止重复请求。请解锁 iPad 后重插数据线，或点“连接”重试。" : "上一次系统连接仍未结束，已暂停重复请求。请等待系统完成。"
+            traceAutomatic("waiting-for-device-change")
+            return
+        }
         // A transport handover resumes the desktop that was already in use,
         // including a manually connected session with an external display.
         if resumeAfterMigration && !hasIPadScreen && !busy && !paused {
@@ -460,7 +483,8 @@ struct ConnectionEvent:Identifiable {
     }
     var automaticChoiceTitle:String {hasIPadScreen ? "自动（\(transportDescription)）" : "自动（有线优先）"}
     func chooseTransport(_ choice:TransportChoice) {
-        guard !busy,!switchingTransport,!adjustingResolution else{return}
+        guard !busy,!switchingTransport,!adjustingResolution,requestGate.pending==nil else{return}
+        requestGate.resume()
         refresh(hardware:true)
         guard choice != .wired || usbCount>0 else {transportMessage="请先连接 USB-C 数据线。";return}
         let previous=transportChoice
@@ -507,7 +531,7 @@ struct ConnectionEvent:Identifiable {
         log("手动切换失败，恢复上一次可用连接")
     }
     private func reconcileTransport() {
-        guard !adjustingResolution else{return}
+        guard !adjustingResolution,requestGate.pending==nil,!requestGate.suspended else{return}
         let remaining=0.6-Date().timeIntervalSince(cableChangedAt)
         if remaining>0 {scheduleTick(after:remaining+0.1);return}
         let wait=nextTransportAttempt.timeIntervalSinceNow
@@ -610,6 +634,11 @@ struct ConnectionEvent:Identifiable {
         refresh(discover:selection.isEmpty,hardware:true)
         guard !hasIPadScreen else {return}
         guard !busy else{return}
+        guard requestGate.pending==nil else {
+            status="正在等待系统连接结束";detail="上一次请求尚未返回，暂不重复连接。";return
+        }
+        if manual {requestGate.resume()}
+        guard requestGate.canStart else {return}
         if transportChoice == .wired && usbCount==0 {transportChoice = .automatic;manualChoiceCablePresent=nil}
         if manual {paused=false;attempts=0}
         guard !selection.isEmpty else {status="请选择 iPad";detail="若列表为空，请检查 Apple 账户与 iPad 信任状态。";return}
@@ -626,10 +655,14 @@ struct ConnectionEvent:Identifiable {
             guard let self,self.requestID==id else{return}
             self.refresh()
             guard !self.hasIPadScreen,self.requestID==id else{return}
+            guard self.requestGate.begin(id) else {self.busy=false;return}
             let callBegan=Date()
             MPBridge.connectName(self.selection,transport:target.systemValue) { [weak self] error in
                 Task { @MainActor in
                     guard let self else{return}
+                    // Retire the native token even when a display event has
+                    // invalidated this request's UI generation in the meantime.
+                    self.requestGate.complete(id)
                     self.lastRequestDuration=Date().timeIntervalSince(callBegan)
                     self.log(String(format:"系统连接请求回调 %.3f 秒（%@）",self.lastRequestDuration,target.title))
                     guard self.requestID==id else{return}
@@ -645,7 +678,7 @@ struct ConnectionEvent:Identifiable {
                     // Actual connected display wins over an 'already in use'
                     // response from a raced or repeated connection request.
                     guard !self.hasIPadScreen else{return}
-                    if let error {self.status="等待重试连接";self.detail=error}
+                    if let error {self.status=self.requestGate.suspended ? "等待 iPad 重新就绪" : "等待重试连接";self.detail=error}
                     else {self.status="正在建立显示画面";self.detail="系统已接收请求，等待 iPad 显示器上线。";self.log("系统连接请求完成")}
                 }
             }
@@ -654,13 +687,13 @@ struct ConnectionEvent:Identifiable {
             guard let self,self.requestID==id,self.busy else{return}
             self.refresh()
             guard !self.hasIPadScreen else{return}
-            self.requestID=UUID();self.busy=false
+            self.requestGate.timedOut(id);self.busy=false
             self.restoreManualFallbackIfNeeded()
             let delay=ConnectionPolicy.retryDelay(attempt:self.attempts,timedOut:true,rapidRecovery:self.rapidRecovery)
             self.nextAttempt=Date().addingTimeInterval(delay)
-            self.status="等待重试连接";self.detail="系统随航暂未就绪，将自动重试。"
-            self.log("系统连接超时，\(Int(delay)) 秒后重试")
-            self.scheduleTick(after:delay);self.writeDiagnostics(force:true)
+            self.status="正在等待系统连接结束";self.detail="连接超时，但系统请求仍在处理中，已暂停重复请求。"
+            self.log("系统连接超时，等待原请求结束，暂不重复连接")
+            self.writeDiagnostics(force:true)
         }
     }
     func disconnect() {
@@ -702,6 +735,9 @@ struct ConnectionEvent:Identifiable {
         record["resumeAfterMigration"]=resumeAfterMigration
         record["transportChoice"]=transportChoice.rawValue
         record["rapidRecovery"]=rapidRecovery
+        record["nativeRequestPending"]=requestGate.pending != nil
+        record["automaticRetrySuspended"]=requestGate.suspended
+        record["nativeAttemptsInEpoch"]=requestGate.attempts
         record["deviceDiscoveryDurationMs"]=Int(lastDiscoveryDuration*1000)
         record["lastRequestDurationMs"]=Int(lastRequestDuration*1000)
         if let duration=lastRecoveryDuration {record["lastRecoveryDurationMs"]=Int(duration*1000)}

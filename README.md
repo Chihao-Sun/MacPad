@@ -1,101 +1,98 @@
 <p align="center">
-  <img src="Resources/MacPadIcon.png" width="112" alt="MacPad 图标">
+  <img src="Resources/MacPadIcon.png" width="112" alt="MacPad icon">
 </p>
 
 # MacPad
 
-把 iPad 当作 Mac mini 的日常屏幕。MacPad 免费开源，只需在 Mac 上安装和配置，iPad 不用另装软件。
+**English** | [简体中文](README.zh-CN.md)
 
-它使用 Apple 原生随航传输画面，再用虚拟屏幕维持桌面、生成适合 iPad 的高清分辨率。两端满足随航要求时，无需购买采集卡或显示器诱骗器；有线使用能传数据的 USB-C 线，也可以无线连接。
+[Download](https://github.com/Chihao-Sun/MacPad/releases/latest) · [Setup guide](docs/GETTING_STARTED.md) · [Report a problem](https://github.com/Chihao-Sun/MacPad/issues)
 
-首次配置并验证好后，MacPad 可以随登录在菜单栏运行，按设置自动连接 iPad。日常关闭设置窗口即可继续使用，系统暂时断开时会尝试恢复。
+Use an iPad as your Mac mini's everyday display. MacPad is free and open source. Install it on the Mac; the iPad needs no extra app.
 
-## 我们优化了哪些操作
+Apple Sidecar carries the picture. MacPad keeps a virtual display alive, manages a mirrored desktop, and offers HiDPI sizes suited to the iPad's screen. With compatible devices and accounts, you can use an existing USB-C data cable or connect wirelessly, without buying a capture card or display dummy.
 
-- 拔掉实体显示器后，虚拟屏幕继续保留桌面，iPad 可以作为登录后的唯一屏幕。
-- iPad 与虚拟屏保持同一个镜像桌面，鼠标和窗口不会跑到这两块屏幕之间的隐藏扩展区域。
-- 开启登录启动与自动连接后，进入 Mac 桌面就会尝试连接，不必每次再去系统设置里打开随航。
-- 数据线接入时优先有线，拔线后尝试无线，插回后尝试恢复有线；也可以临时手动选连接方式。
-- 读取 iPad 的原生像素和比例，自动生成高清档位。可以选文字更大或空间更多的桌面，也可以自定义宽高，并按设备记住选择。
-- “断开”会暂停自动连接，“连接”会恢复。关闭窗口只收起设置，顶部菜单栏和桌面连接继续运行，无需常驻 Dock。
-- 设置页显示实际连接方式和连接记录；显示大小应用成功并确认镜像后才保存，失败会保留原桌面。
+Once you have configured and tested it, MacPad can run from the menu bar after login and connect automatically. Closing its settings window keeps the desktop running.
 
-### 高清是怎么实现的
+## What MacPad makes easier
 
-画面传输由 Apple 随航完成。MacPad 的虚拟屏幕负责桌面尺寸和高清渲染：先识别 iPad 面板，再按它的比例生成显示大小，避免把同一套 11 英寸分辨率用于所有 iPad。
+- Keep using the iPad after unplugging the physical monitor. The virtual display retains the Mac desktop after login.
+- Keep the iPad and virtual display on one mirrored desktop, so the pointer and windows cannot disappear into an invisible extension between them.
+- Start from the menu bar after login and connect automatically when no physical monitor is attached.
+- Prefer USB-C when a data cable is present, try wireless after unplugging it, and return to wired when it is reinserted. A temporary manual connection choice is also available.
+- Read the iPad's native pixels and aspect ratio to generate HiDPI choices. Choose larger text or more workspace, enter a custom size, and remember the choice for that device.
+- Keep at most one native connection request pending, even after a local timeout. After three unsuccessful attempts in one device-state cycle, wait for a real device change or a manual retry instead of repeatedly triggering system error dialogs. The system may still show an individual connection error.
+- Pause automatic connection with Disconnect and resume it with Connect. Settings can be closed while MacPad stays in the menu bar, without a persistent Dock icon.
+- Save a display size only after verifying the actual mode and mirror relationship. A failed change preserves the previous desktop.
 
-在已经验证的 11 英寸 iPad Pro 上，默认桌面是 1344 × 938，渲染为 2688 × 1876，再显示到 2388 × 1668 的面板。其他尺寸使用系统报告的面板像素生成档位。识别不到时会明确显示兼容状态，不把回退尺寸当成已经识别的屏幕能力。
+## Download and first setup
 
-你可以从“显示大小”选择档位，或打开“自定义…”输入宽高。“保持 iPad 屏幕比例”默认开启。软件会检查尺寸和画布上限，避免低于面板像素覆盖或创建过大的高清画布。渲染更大的桌面也会增加图形与编码开销，最终帧率和传输质量仍由系统随航决定。
+Download the Apple Silicon DMG from [GitHub Releases](https://github.com/Chihao-Sun/MacPad/releases/latest). Open it, drag MacPad.app into Applications, and launch that installed copy.
 
-## 下载后怎么用
+The current package is **ad-hoc signed and not Apple notarized**. macOS may block the first launch. After checking the download source and checksum, follow [Apple's instructions](https://support.apple.com/en-au/102445) for reviewing the app in System Settings → Privacy & Security. Do not disable system-wide security protections.
 
-当前先公开源码，安装包尚未发布。完成分发准备后，Mac 端 App 会放在 [GitHub Releases](https://github.com/Chihao-Sun/MacPad/releases)。下面是 App 的首次配置流程，iPad 全程不用安装额外软件。
+1. Keep a physical monitor attached for setup, with a keyboard and mouse that can operate the Mac. Check the compatibility section below.
+2. Confirm that both devices meet [Apple's Sidecar requirements](https://support.apple.com/en-ie/102597). Sign in to the same Apple Account with two-factor authentication. For wireless use, enable Wi-Fi, Bluetooth, and Handoff, and keep the devices nearby.
+3. Install MacPad in a permanent Applications directory and keep one working copy. Set up login launch from that location, not from a mounted DMG or temporary extraction folder.
+4. Make the first connection with a USB-C data cable. Unlock the iPad and trust the Mac if prompted. Finder sync and backups are unnecessary.
+5. Open MacPad from the menu bar, choose your iPad, and select Connect. Check the picture, keyboard, and mouse before choosing a Display size.
+6. In Automatic connection, enable the options you want: connect when no physical monitor is present, switch wired/wireless automatically, and launch after Mac login. A fresh installation does not register its login item without your choice.
+7. Keep the iPad cable attached and unplug only the physical monitor's video cable. Check the desktop, then separately test wireless recovery by unplugging the iPad cable and wired recovery by plugging it back in.
+8. Before travel, save your work and shut down normally. Disconnect power only after shutdown. Reconnect power and start the Mac, keeping the iPad connected and unlocked. Enter the startup password on a keyboard connected to the Mac, then check automatic connection after login. Keep a recovery monitor nearby for the first test.
 
-1. 保留外接显示器，准备能操作 Mac 的键盘和鼠标。Mac 端当前提供 Apple Silicon 构建，先核对下方兼容范围。
-2. 确认 Mac 和 iPad 支持 [Apple 随航](https://support.apple.com/en-ie/102597)，登录同一 Apple 账户并开启双重认证。要用无线接续时，开启 Wi-Fi、蓝牙和接力，保持设备在附近。
-3. 将 MacPad.app 放入固定的应用程序目录后再打开，保留一个应用副本。不要从临时解压目录设置登录启动。
-4. 第一次先用 USB-C 数据线直连，iPad 保持解锁，按系统提示信任此 Mac。无需在访达执行同步或备份。
-5. 点击顶部菜单栏 MacPad，选择“打开 MacPad”，选中你的 iPad 后点击“连接”。确认画面、键盘和鼠标正常，再选合适的“显示大小”。
-6. 在“自动连接”页开启需要的三个开关：“没有实体显示器时自动连接”“自动切换有线与无线”“登录 Mac 后启动”。全新安装不会自动替你开启登录项。
-7. 保持 iPad 插线，只拔外接显示器的视频线。确认 iPad 仍显示桌面，再测试拔掉数据线后的无线接续，以及插回线后的有线接续。
-8. 出门前单独做一次关机测试：保存工作并正常关机，关机完成再拔电。重新接电开机，iPad 保持插线且解锁，用连接到 Mac 的键盘输入开机密码。进入用户桌面后观察自动连接，并把恢复用显示器放在手边。
+For daily switching, unplug the data cable to try wireless and reinsert it to return to wired. Disconnect means pause, so it is not the switching control. A manual transport choice lasts for the current session; the next cable-state change or login restores automatic wired preference.
 
-配置完成后，日常有线切无线直接拔数据线，回到有线直接插回。不要点击“断开”来切换方式，它表示暂停连接。手动指定有线或无线只覆盖本次使用；下次线缆状态变化或重新登录会恢复自动有线优先。
+See the [setup and recovery guide](docs/GETTING_STARTED.md). If the iPad is your only display, attach a spare monitor before updating or quitting. Quitting removes the virtual display owned by the process.
 
-完整步骤和恢复办法见 [首次配置指南](docs/首次配置.md)。如果 MacPad 是唯一显示器，更新或退出前先接备用显示器；退出进程会移除它保留的虚拟屏幕。
+## How display sizes work
 
-## 延迟与连接切换
+MacPad reads the Sidecar display's native pixel dimensions, then generates desktop sizes with the same aspect ratio. It does not apply one 11-inch preset list to every iPad. If detection fails, the interface labels the compatibility fallback instead of presenting it as a detected panel.
 
-| 项目 | 当前测量情况 |
-| --- | --- |
-| USB-C 画面延迟 | 尚未完成端到端测量，没有可公布的毫秒数。 |
-| 无线画面延迟 | 尚未完成端到端测量，没有可公布的毫秒数。 |
-| 有线切无线的恢复时间 | 此前设备实测中，用户观察约 5 秒恢复，日志约 5 秒显示上线、约 6 秒完成稳定校验。 |
+On the tested 11-inch iPad Pro, the default desktop is 1344 × 938, rendered at 2688 × 1876 and scaled to a 2388 × 1668 panel. Other panels get sizes calculated from their reported pixels. These examples belong to the tested panel:
 
-画面延迟是操作到 iPad 显示变化的时间；恢复时间是拔线后等画面重新出现的时间。两者分别统计。有线与无线可以自动接续，期间可能短暂黑屏，当前不承诺零中断或固定恢复秒数。
-
-## 兼容范围和使用边界
-
-当前源码版本为 V1.3.0，提供 arm64 构建，编译最低目标为 macOS 14。实际设备验证只覆盖 M4 Mac mini、macOS 26.6.2 和一台 11 英寸第二代 iPad Pro；iPadOS 具体版本尚未登记。未提供 Intel 构建，其他系统版本还需要验证。
-
-不同尺寸和横竖比例已有策略测试，不能当作其他 iPad 型号已经完成真机验收。软件依赖系统内部接口，macOS 升级可能影响兼容性，且两端仍须满足 Apple 随航的设备与账户要求。
-
-MacPad 在登录后工作，不显示 FileVault 开机解锁画面，不保存密码，也不启用系统自动登录。完全离线、实际睡眠唤醒以及插线时手动强制无线尚未分别验收。它不提供跨公网远程桌面，也不把 iPad 变成完整的 macOS 手指触摸屏。
-
-<details>
-<summary>11 英寸 iPad Pro 的显示大小示例</summary>
-
-| 桌面大小 | 实际渲染像素 |
+| Desktop size | Rendered pixels |
 | --- | --- |
 | 1194 × 834 | 2388 × 1668 |
 | 1280 × 894 | 2560 × 1788 |
-| 1344 × 938（默认） | 2688 × 1876 |
+| 1344 × 938 (default) | 2688 × 1876 |
 | 1600 × 1118 | 3200 × 2236 |
 | 2388 × 1668 | 4776 × 3336 |
 
-这些是这块面板的档位示例。其他面板会按自身像素和比例生成选项；高清渲染不代表每档都与面板一对一映射。
+Use Display size or Custom to choose a desktop. Keep iPad aspect ratio is on by default. Custom dimensions must cover the panel pixels and fit within the framebuffer limits. Larger rendered desktops cost more graphics and encoding work; Sidecar controls the final frame rate and transmission quality. HiDPI does not imply a one-to-one panel mapping at every size.
 
-</details>
+## Latency and switching
 
-<details>
-<summary>从源码构建</summary>
+| Measurement | Evidence so far |
+| --- | --- |
+| USB-C picture latency | End-to-end latency has not been measured; no millisecond figure is published. |
+| Wireless picture latency | End-to-end latency has not been measured; no millisecond figure is published. |
+| Recovery after unplugging a data cable | In an earlier device test, the user observed about 5 seconds; logs showed online status at about 5 seconds and stable verification at about 6 seconds. |
 
-在 Apple Silicon Mac 上安装 Xcode 或包含所需 macOS SDK 的命令行开发工具，并准备 Python 3：
+Picture latency measures an input-to-visible-response delay. Recovery time measures how long it takes for the picture to return after unplugging. Switching can briefly interrupt the picture; there is no zero-interruption or fixed-time guarantee.
+
+## Compatibility and limits
+
+V1.3.1 provides an arm64 build with a macOS 14 minimum compilation target. Physical testing covers one M4 Mac mini on macOS 26.6.2 and one second-generation 11-inch iPad Pro. The iPadOS version has not been recorded. No Intel build is supplied, and other OS versions still need testing.
+
+Different native dimensions and portrait/landscape ratios have policy tests. That is not physical acceptance of other iPad models. MacPad depends on internal system interfaces, which can change with macOS updates. Both devices must still qualify for Apple Sidecar.
+
+MacPad works after login. It does not display the FileVault startup unlock screen, save your password, or enable automatic macOS login. Fully offline operation, real sleep/wake, and forcing wireless while the cable stays attached have not been separately verified. It does not provide remote desktop across the public Internet or full macOS finger-touch input.
+
+## Build from source
+
+On an Apple Silicon Mac, install Xcode or command-line developer tools with the required macOS SDK, and have Python 3 available:
 
 ```sh
 zsh scripts/test.sh
 zsh scripts/build.sh
 ```
 
-应用生成于 `.build/Release.noindex/<VERSION>/MacPad.app`。构建脚本会递增内部 `BUILD`，只生成和本地签名，不自动安装、替换或启动应用。
+The app is generated in `.build/Release.noindex/<VERSION>/MacPad.app`. The build script increments internal BUILD and applies an ad-hoc signature. It does not automatically install, replace, or launch the app.
 
-本地编译通过不代表 Apple 公证通过。策略与几何测试也不能代替真实 iPad、物理拔插或冷启动测试。首次试用自己编译的 App 时保留外接显示器。
+Compilation and policy tests do not establish notarization, physical-device acceptance, or a successful cold boot. Keep a physical monitor attached for the first use of a self-built app.
 
-</details>
+## License, privacy and contributions
 
-## 开源、隐私与贡献
+MacPad is free under [GPL-3.0-only](LICENSE), including its supplied project artwork. Commercial use is permitted; distributing modified versions requires compliance with the GPL and corresponding source obligations. Apple's system components are governed by their own terms and are not distributed here.
 
-MacPad 免费发布，代码和随附的项目资源采用 [GPL-3.0-only](LICENSE)。允许商业使用；分发基于本项目的修改版时，须遵守 GPL 并提供相应源码。Apple 的系统软件与框架由其各自条款管理，不随本仓库分发。
-
-诊断保存在本地，不自动上传。提交问题前，请检查并移除日志和截图中的个人设备名称、路径及私密内容。详见 [隐私说明](docs/隐私说明.md) 和 [贡献指南](CONTRIBUTING.md)。
+Diagnostics stay on your Mac and are not uploaded automatically. Review logs and screenshots before sharing them and remove personal device names, local paths, and private content. Read the [privacy notes](docs/PRIVACY.md) and [contribution guide](CONTRIBUTING.md).
